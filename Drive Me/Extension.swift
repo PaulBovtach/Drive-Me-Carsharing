@@ -27,10 +27,12 @@ extension View {
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
+                    .allowsHitTesting(false)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(Color.white.opacity(0.05))
+                    .allowsHitTesting(false)
             )
             .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
     }

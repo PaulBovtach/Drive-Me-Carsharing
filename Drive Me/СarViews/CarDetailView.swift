@@ -208,11 +208,13 @@ struct BadgeView: View {
 
 // MARK: - Custom Button Style
 struct ReserveButton: View {
-    
     let car: Car
+    @State private var showBookingSheet = false
+    
     var body: some View {
         Button(action: {
             print("Reserve \(car.brand ?? "")")
+            showBookingSheet = true
         }) {
             // Внутрішній контент кнопки
             HStack {
@@ -264,6 +266,10 @@ struct ReserveButton: View {
             )
             .ignoresSafeArea()
         )
+        .sheet(isPresented: $showBookingSheet) {
+            BookingCalendarView(car: car)
+        }
+        
     }
 }
 
@@ -273,7 +279,7 @@ struct BouncyGlassButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
         // Якщо кнопка натиснута - зменшуємо її до 90% розміру
-            .scaleEffect(configuration.isPressed ? 0.9 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.85 : 1.0)
         // Робимо її трохи прозорішою при натисканні
             .opacity(configuration.isPressed ? 0.8 : 1.0)
         // Плавна, пружиниста анімація

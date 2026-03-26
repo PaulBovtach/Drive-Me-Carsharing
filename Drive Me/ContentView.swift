@@ -17,6 +17,12 @@ struct ContentView: View {
                 Image(systemName: "car")
                 Text("Cars")
             }
+            Tab {
+                Text("Rent car demanding on date ")
+            }label: {
+                Image(systemName: "calendar")
+                Text("Dates")
+            }
             
             Tab {
                 Text("MapKit integration")
@@ -24,18 +30,14 @@ struct ContentView: View {
                 Image(systemName: "map")
                 Text("Map")
             }
-            Tab {
-                Text("Rent car demanding on date ")
-            }label: {
-                Image(systemName: "calendar")
-                Text("Dates")
-            }
+            
             Tab {
                 Text("History of bookings and analytics")
             }label: {
-                Image(systemName: "book")
-                Text("History")
+                Image(systemName: "person")
+                Text("Account")
             }
+            
             
 
         }

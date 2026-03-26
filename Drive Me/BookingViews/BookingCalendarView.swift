@@ -26,9 +26,9 @@ struct BookingCalendarView: View {
             
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 63/255, green: 126/255, blue: 65/255),
-                    Color(red: 45/255, green: 100/255, blue: 50/255),
-                    Color(red: 30/255, green: 80/255, blue: 35/255)
+                    Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
+                    Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
+                    Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -47,6 +47,7 @@ struct BookingCalendarView: View {
                             .frame(width: 50, height: 50)
                             .clipShape(Circle())
                             .background(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
                             .cornerRadius(40)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 40)
@@ -73,6 +74,7 @@ struct BookingCalendarView: View {
                             .frame(width: 100, height: 50)
                             .clipShape(Capsule())
                             .background(.ultraThinMaterial)
+                            .environment(\.colorScheme, .dark)
                             .cornerRadius(40)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 40)
@@ -122,9 +124,9 @@ struct BookingCalendarView: View {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
                                 .frame(width: 44, height: 44)
-                                .background(Color.white.opacity(0.1))
                                 .clipShape(Circle())
                                 .background(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
                                 .cornerRadius(40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 40)
@@ -144,8 +146,10 @@ struct BookingCalendarView: View {
                         Button(action: { withAnimation {
                             viewModel.changeMonth(by: 1)
                         } }) {
-                            Image(systemName: "chevron.right").frame(width: 44, height: 44).background(Color.white.opacity(0.1)).clipShape(Circle()).foregroundColor(.white)
+                            Image(systemName: "chevron.right").frame(width: 44, height: 44)
+                                .clipShape(Circle()).foregroundColor(.white)
                                 .background(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
                                 .cornerRadius(40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 40)
@@ -246,6 +250,7 @@ struct DayCellView: View {
                                     .frame(width: 40, height: 40)
                                     .shadow(radius: 2)
                                     .background(.ultraThinMaterial)
+                                    .environment(\.colorScheme, .light)
                                     .cornerRadius(40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 40)

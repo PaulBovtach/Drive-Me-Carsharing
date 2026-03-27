@@ -13,12 +13,13 @@ struct Drive_MeApp: App {
     
     var body: some Scene {
         WindowGroup {
+            ContentView()
+                .environmentObject(authManager)
+                .fullScreenCover(isPresented: $authManager.showAuthView) {
+                    AuthView()
+                        .environmentObject(authManager)
+                }
             
-            ZStack{
-                ContentView()
-                
-                
-            }
             
             
         }

@@ -258,8 +258,8 @@ struct ReserveButton: View {
         .background(
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 20/255, green: 40/255, blue: 15/255).opacity(0), // Прозорий колір зверху
-                    Color(red: 20/255, green: 40/255, blue: 15/255)             // Темний лісовий колір знизу
+                    Color(red: 20/255, green: 40/255, blue: 15/255).opacity(0),
+                    Color(red: 20/255, green: 40/255, blue: 15/255)
                 ]),
                 startPoint: .top,
                 endPoint: .bottom

@@ -38,3 +38,17 @@ extension View {
             .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
     }
 }
+
+
+extension View {
+    func glassy() -> some View {
+        self
+            .background(.ultraThinMaterial)
+            .environment(\.colorScheme, .dark)
+            .cornerRadius(40)
+            .overlay(
+                RoundedRectangle(cornerRadius: 40)
+                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
+            )
+    }
+}

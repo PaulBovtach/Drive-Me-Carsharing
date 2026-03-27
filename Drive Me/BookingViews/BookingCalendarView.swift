@@ -9,16 +9,17 @@
 import SwiftUI
 
 struct BookingCalendarView: View {
+    
     @Environment(\.dismiss) var dismiss
+    @StateObject private var viewModel: BookingCalendarViewModel
+    @EnvironmentObject var authManager: AuthManager
+    
     let car: Car
     
-    
-    @StateObject private var viewModel: BookingCalendarViewModel
-    
     init(car: Car) {
-            self.car = car
-            self._viewModel = StateObject(wrappedValue: BookingCalendarViewModel(car: car))
-        }
+        self.car = car
+        self._viewModel = StateObject(wrappedValue: BookingCalendarViewModel(car: car))
+    }
     
     
     var body: some View {
@@ -46,15 +47,9 @@ struct BookingCalendarView: View {
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
                             .clipShape(Circle())
-                            .background(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .cornerRadius(40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                            )
-                            
-                
+                            .glassy()
+                        
+                        
                     }
                     
                     .buttonStyle(BouncyGlassButtonStyle())
@@ -73,48 +68,34 @@ struct BookingCalendarView: View {
                             .foregroundColor(.white)
                             .frame(width: 100, height: 50)
                             .clipShape(Capsule())
-                            .background(.ultraThinMaterial)
-                            .environment(\.colorScheme, .dark)
-                            .cornerRadius(40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                            )
+                            .glassy()
                     }
                     .buttonStyle(BouncyGlassButtonStyle())
                 }
                 
                 // MARK: - Заголовок (Кількість днів)
-                
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.summaryText)
-                            .font(.system(size: 36, weight: .semibold))
-                            .foregroundColor(.white)
-                        
-                        if let start = viewModel.startDate {
-                            Text("\(viewModel.formatDate(start)) \(viewModel.endDate != nil ? "- \(viewModel.formatDate(viewModel.endDate!))" : "")")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                        
-                        
-                     
-                            HStack(spacing: 8) {
-                                Image(systemName: "dollarsign")
-                                    .foregroundColor(.green)
-                                Text("\(viewModel.totalCost)")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                            }
-                            .padding(.top, 8)
-                        
-                    }
-                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.summaryText)
+                        .font(.system(size: 36, weight: .semibold))
+                        .foregroundColor(.white)
                     
-                   
+                    if let start = viewModel.startDate {
+                        Text("\(viewModel.formatDate(start)) \(viewModel.endDate != nil ? "- \(viewModel.formatDate(viewModel.endDate!))" : "")")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Image(systemName: "dollarsign")
+                            .foregroundColor(.green)
+                        Text("\(viewModel.totalCost)")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.top, 8)
+                }
                 
                 // MARK: - Календар
-                
                 VStack(spacing: 20) {
                     // Перемикач місяців
                     HStack {
@@ -125,13 +106,7 @@ struct BookingCalendarView: View {
                                 .foregroundColor(.white)
                                 .frame(width: 44, height: 44)
                                 .clipShape(Circle())
-                                .background(.ultraThinMaterial)
-                                .environment(\.colorScheme, .dark)
-                                .cornerRadius(40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                )
+                                .glassy()
                         }
                         .buttonStyle(BouncyGlassButtonStyle())
                         
@@ -148,13 +123,7 @@ struct BookingCalendarView: View {
                         } }) {
                             Image(systemName: "chevron.right").frame(width: 44, height: 44)
                                 .clipShape(Circle()).foregroundColor(.white)
-                                .background(.ultraThinMaterial)
-                                .environment(\.colorScheme, .dark)
-                                .cornerRadius(40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                )
+                                .glassy()
                         }
                         .buttonStyle(BouncyGlassButtonStyle())
                     }
@@ -189,14 +158,23 @@ struct BookingCalendarView: View {
                     }
                 }
                 
-                
                 Spacer()
                 
-               
                 // MARK: - Нижня кнопка
                 Button(action: {
-                    print("Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
-                    dismiss()
+                    
+                    
+                    if authManager.isAuthenticated {
+                        print("Користувач залогінений. Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
+                        dismiss()
+                    }else {
+                        print("Користувач є гостем.")
+                        withAnimation {
+                            authManager.showAuthView = true
+                        }
+                    }
+                    
+
                 }) {
                     Text("Confirm Dates")
                         .font(.headline)
@@ -211,7 +189,7 @@ struct BookingCalendarView: View {
             }
             .padding(24)
         }
-       
+        
     }
     
 }

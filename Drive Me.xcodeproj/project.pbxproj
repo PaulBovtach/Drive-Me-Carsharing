@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		579654F62F71FDB70035665B /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = 579654F52F71FDB70035665B /* Auth */; };
+		579654F82F71FDB70035665B /* Functions in Frameworks */ = {isa = PBXBuildFile; productRef = 579654F72F71FDB70035665B /* Functions */; };
+		579654FA2F71FDB70035665B /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 579654F92F71FDB70035665B /* PostgREST */; };
+		579654FC2F71FDB70035665B /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 579654FB2F71FDB70035665B /* Realtime */; };
+		579654FE2F71FDB70035665B /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 579654FD2F71FDB70035665B /* Storage */; };
+		579655002F71FDB70035665B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 579654FF2F71FDB70035665B /* Supabase */; };
+		579655172F72FBBC0035665B /* SwiftUICarousel in Frameworks */ = {isa = PBXBuildFile; productRef = 579655162F72FBBC0035665B /* SwiftUICarousel */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		579654E62F71FC5C0035665B /* Drive Me.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Drive Me.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +33,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				579654FA2F71FDB70035665B /* PostgREST in Frameworks */,
+				579655172F72FBBC0035665B /* SwiftUICarousel in Frameworks */,
+				579654F82F71FDB70035665B /* Functions in Frameworks */,
+				579655002F71FDB70035665B /* Supabase in Frameworks */,
+				579654F62F71FDB70035665B /* Auth in Frameworks */,
+				579654FE2F71FDB70035665B /* Storage in Frameworks */,
+				579654FC2F71FDB70035665B /* Realtime in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +82,13 @@
 			);
 			name = "Drive Me";
 			packageProductDependencies = (
+				579654F52F71FDB70035665B /* Auth */,
+				579654F72F71FDB70035665B /* Functions */,
+				579654F92F71FDB70035665B /* PostgREST */,
+				579654FB2F71FDB70035665B /* Realtime */,
+				579654FD2F71FDB70035665B /* Storage */,
+				579654FF2F71FDB70035665B /* Supabase */,
+				579655162F72FBBC0035665B /* SwiftUICarousel */,
 			);
 			productName = "Drive Me";
 			productReference = 579654E62F71FC5C0035665B /* Drive Me.app */;
@@ -94,6 +118,10 @@
 			);
 			mainGroup = 579654DD2F71FC5C0035665B;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				579655152F72FBBC0035665B /* XCRemoteSwiftPackageReference "SwiftUICarousel" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 579654E72F71FC5C0035665B /* Products */;
 			projectDirPath = "";
@@ -332,6 +360,63 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
+		579655152F72FBBC0035665B /* XCRemoteSwiftPackageReference "SwiftUICarousel" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ferdous-mahmud/SwiftUICarousel";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		579654F52F71FDB70035665B /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		579654F72F71FDB70035665B /* Functions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Functions;
+		};
+		579654F92F71FDB70035665B /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		579654FB2F71FDB70035665B /* Realtime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Realtime;
+		};
+		579654FD2F71FDB70035665B /* Storage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Storage;
+		};
+		579654FF2F71FDB70035665B /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		579655162F72FBBC0035665B /* SwiftUICarousel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 579655152F72FBBC0035665B /* XCRemoteSwiftPackageReference "SwiftUICarousel" */;
+			productName = SwiftUICarousel;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 579654DE2F71FC5C0035665B /* Project object */;
 }

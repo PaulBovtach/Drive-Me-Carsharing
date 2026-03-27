@@ -176,9 +176,22 @@ struct AuthView: View {
                         
                     }
                     
+                    //MARK: Main action button
                     Button {
                         focusedField = nil
-                        if isLoginMode { print("logining") } else { print("registrating") }
+                        Task{
+                            if isLoginMode{
+                                print("Attempting to log in...")
+                                await authManager.logIn(email: email, password: password)
+                            }else{
+                                guard password == confirmPassword else {
+                                    print("Passwords aren't equal")
+                                    return
+                                }
+                                print("Attempting to register...")
+                                await authManager.register(email: email, password: password, name: name, surname: surname, phoneNumber: phoneNumber)
+                            }
+                        }
                     } label: {
                         Text(isLoginMode ? "Login" : "Register")
                             .font(.headline)

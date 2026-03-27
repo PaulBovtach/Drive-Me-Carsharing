@@ -14,6 +14,7 @@ struct UserProfile: Identifiable, Codable, Hashable {
     var surname: String?
     var role: String?
     var phoneNumber: String?
+    var email: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -21,6 +22,7 @@ struct UserProfile: Identifiable, Codable, Hashable {
         case surname
         case role
         case phoneNumber = "phone_number"
+        case email
     }
 }
 

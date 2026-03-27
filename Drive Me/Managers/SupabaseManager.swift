@@ -10,6 +10,11 @@ import Supabase
 
 let supabase = SupabaseClient(
     supabaseURL: URL(string: Secrets.supabaseURL)!,
-    supabaseKey: Secrets.supabaseKey
+    supabaseKey: Secrets.supabaseKey,
+    options: SupabaseClientOptions(
+        auth: .init(
+            emitLocalSessionAsInitialSession: true
+        )
+    )
 )
 

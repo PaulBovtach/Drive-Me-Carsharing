@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var authManager: AuthManager
     var body: some View {
         
         TabView {
@@ -32,7 +33,7 @@ struct ContentView: View {
             }
             
             Tab {
-                Text("History of bookings and analytics")
+                AccountView()
             }label: {
                 Image(systemName: "person")
                 Text("Account")
@@ -48,4 +49,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(AuthManager(preview: true))
 }

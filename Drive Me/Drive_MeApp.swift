@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct Drive_MeApp: App {
+    @StateObject private var authManager = AuthManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authManager)
+                .fullScreenCover(isPresented: $authManager.showAuthView) {
+                    AuthView()
+                        .environmentObject(authManager)
+                }
+            
+            
+            
         }
     }
 }

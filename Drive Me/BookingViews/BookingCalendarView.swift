@@ -9,16 +9,17 @@
 import SwiftUI
 
 struct BookingCalendarView: View {
+    
     @Environment(\.dismiss) var dismiss
+    @StateObject private var viewModel: BookingCalendarViewModel
+    @EnvironmentObject var authManager: AuthManager
+    
     let car: Car
     
-    
-    @StateObject private var viewModel: BookingCalendarViewModel
-    
     init(car: Car) {
-            self.car = car
-            self._viewModel = StateObject(wrappedValue: BookingCalendarViewModel(car: car))
-        }
+        self.car = car
+        self._viewModel = StateObject(wrappedValue: BookingCalendarViewModel(car: car))
+    }
     
     
     var body: some View {
@@ -26,9 +27,9 @@ struct BookingCalendarView: View {
             
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 63/255, green: 126/255, blue: 65/255),
-                    Color(red: 45/255, green: 100/255, blue: 50/255),
-                    Color(red: 30/255, green: 80/255, blue: 35/255)
+                    Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
+                    Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
+                    Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -46,14 +47,9 @@ struct BookingCalendarView: View {
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
                             .clipShape(Circle())
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                            )
-                            
-                
+                            .glassy()
+                        
+                        
                     }
                     
                     .buttonStyle(BouncyGlassButtonStyle())
@@ -72,47 +68,34 @@ struct BookingCalendarView: View {
                             .foregroundColor(.white)
                             .frame(width: 100, height: 50)
                             .clipShape(Capsule())
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 40)
-                                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                            )
+                            .glassy()
                     }
                     .buttonStyle(BouncyGlassButtonStyle())
                 }
                 
                 // MARK: - Заголовок (Кількість днів)
-                
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.summaryText)
-                            .font(.system(size: 36, weight: .semibold))
-                            .foregroundColor(.white)
-                        
-                        if let start = viewModel.startDate {
-                            Text("\(viewModel.formatDate(start)) \(viewModel.endDate != nil ? "- \(viewModel.formatDate(viewModel.endDate!))" : "")")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                        
-                        
-                     
-                            HStack(spacing: 8) {
-                                Image(systemName: "dollarsign")
-                                    .foregroundColor(.green)
-                                Text("\(viewModel.totalCost)")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                            }
-                            .padding(.top, 8)
-                        
-                    }
-                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.summaryText)
+                        .font(.system(size: 36, weight: .semibold))
+                        .foregroundColor(.white)
                     
-                   
+                    if let start = viewModel.startDate {
+                        Text("\(viewModel.formatDate(start)) \(viewModel.endDate != nil ? "- \(viewModel.formatDate(viewModel.endDate!))" : "")")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Image(systemName: "dollarsign")
+                            .foregroundColor(.green)
+                        Text("\(viewModel.totalCost)")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.top, 8)
+                }
                 
                 // MARK: - Календар
-                
                 VStack(spacing: 20) {
                     // Перемикач місяців
                     HStack {
@@ -122,14 +105,8 @@ struct BookingCalendarView: View {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
                                 .frame(width: 44, height: 44)
-                                .background(Color.white.opacity(0.1))
                                 .clipShape(Circle())
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                )
+                                .glassy()
                         }
                         .buttonStyle(BouncyGlassButtonStyle())
                         
@@ -144,13 +121,9 @@ struct BookingCalendarView: View {
                         Button(action: { withAnimation {
                             viewModel.changeMonth(by: 1)
                         } }) {
-                            Image(systemName: "chevron.right").frame(width: 44, height: 44).background(Color.white.opacity(0.1)).clipShape(Circle()).foregroundColor(.white)
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 40)
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                )
+                            Image(systemName: "chevron.right").frame(width: 44, height: 44)
+                                .clipShape(Circle()).foregroundColor(.white)
+                                .glassy()
                         }
                         .buttonStyle(BouncyGlassButtonStyle())
                     }
@@ -185,14 +158,23 @@ struct BookingCalendarView: View {
                     }
                 }
                 
-                
                 Spacer()
                 
-               
                 // MARK: - Нижня кнопка
                 Button(action: {
-                    print("Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
-                    dismiss()
+                    
+                    
+                    if authManager.isAuthenticated {
+                        print("Користувач залогінений. Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
+                        dismiss()
+                    }else {
+                        print("Користувач є гостем.")
+                        withAnimation {
+                            authManager.showAuthView = true
+                        }
+                    }
+                    
+
                 }) {
                     Text("Confirm Dates")
                         .font(.headline)
@@ -207,7 +189,7 @@ struct BookingCalendarView: View {
             }
             .padding(24)
         }
-       
+        
     }
     
 }
@@ -246,6 +228,7 @@ struct DayCellView: View {
                                     .frame(width: 40, height: 40)
                                     .shadow(radius: 2)
                                     .background(.ultraThinMaterial)
+                                    .environment(\.colorScheme, .light)
                                     .cornerRadius(40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 40)

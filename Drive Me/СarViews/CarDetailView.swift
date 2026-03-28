@@ -16,9 +16,9 @@ struct CarDetailView: View {
             
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 63/255, green: 126/255, blue: 65/255),
-                    Color(red: 45/255, green: 100/255, blue: 50/255),
-                    Color(red: 30/255, green: 80/255, blue: 35/255)
+                    Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
+                    Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
+                    Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
                 ]),
                 startPoint: .top,
                 endPoint: .bottom
@@ -237,8 +237,8 @@ struct ReserveButton: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
-            // Скляний ефект для самої кнопки
             .background(.ultraThinMaterial)
+            .environment(\.colorScheme, .dark)
             // Додаємо легкий зелений відтінок склу
             .background(Color.greenBackground.opacity(0.3))
             .cornerRadius(40) // Сильне заокруглення (pill shape)
@@ -258,8 +258,8 @@ struct ReserveButton: View {
         .background(
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color(red: 30/255, green: 80/255, blue: 35/255).opacity(0),
-                    Color(red: 30/255, green: 80/255, blue: 35/255)
+                    Color(red: 20/255, green: 40/255, blue: 15/255).opacity(0),
+                    Color(red: 20/255, green: 40/255, blue: 15/255)
                 ]),
                 startPoint: .top,
                 endPoint: .bottom

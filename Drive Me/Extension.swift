@@ -24,6 +24,7 @@ extension View {
                 .ultraThinMaterial,
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
+            .environment(\.colorScheme, .dark)
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
@@ -35,5 +36,19 @@ extension View {
                     .allowsHitTesting(false)
             )
             .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
+    }
+}
+
+
+extension View {
+    func glassy() -> some View {
+        self
+            .background(.ultraThinMaterial)
+            .environment(\.colorScheme, .dark)
+            .cornerRadius(40)
+            .overlay(
+                RoundedRectangle(cornerRadius: 40)
+                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
+            )
     }
 }

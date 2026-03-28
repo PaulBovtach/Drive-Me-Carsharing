@@ -24,6 +24,8 @@ class BookingCalendarViewModel: ObservableObject {
     @Published var endDate: Date? = nil
     @Published var currentMonth: Date = Date()
     
+    @Published var bookedDates: [Date] = []
+    
     let calendar = Calendar.current
     let daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
     
@@ -91,23 +93,50 @@ class BookingCalendarViewModel: ObservableObject {
         }
     }
     
+    
+    // MARK: - Check if booked
+    func isDateBooked(_ date: Date) -> Bool {
+        return bookedDates.contains(calendar.startOfDay(for: date))
+    }
+    
+    func isRangeValid(start: Date, end: Date) -> Bool {
+        var currentDate = calendar.startOfDay(for: start)
+        let endDate = calendar.startOfDay(for: end)
+        
+        while currentDate <= endDate {
+            if isDateBooked(currentDate) { return false }
+            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
+        }
+        return true
+    }
+    
+    // 3. ПОВНІСТЮ ЗАМІНІТЬ вашу handleDateSelection на цю:
     func handleDateSelection(date: Date) {
-        //reject selecting past date
-        if date < calendar.startOfDay(for: Date()) { return }
+        let normalizedDate = calendar.startOfDay(for: date)
+        
+        if normalizedDate < calendar.startOfDay(for: Date()) { return }
+        if isDateBooked(normalizedDate) { return } // Блокуємо зайняті
         
         if startDate == nil {
-            startDate = date
+            startDate = normalizedDate
         } else if let start = startDate, endDate == nil {
-            if date < start {
-                startDate = date
+            if normalizedDate < start {
+                startDate = normalizedDate
             } else {
-                endDate = date
+                // Перевіряємо, чи немає зайнятих днів МІЖ вибраними
+                if isRangeValid(start: start, end: normalizedDate) {
+                    endDate = normalizedDate
+                } else {
+                    startDate = normalizedDate
+                    endDate = nil
+                }
             }
         } else {
-            startDate = date
+            startDate = normalizedDate
             endDate = nil
         }
     }
+    
     
     // MARK: - Генератор сітки календаря
     func extractDates() -> [DayValue] {

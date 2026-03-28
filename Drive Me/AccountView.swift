@@ -10,7 +10,7 @@ import Supabase
 
 struct AccountView: View {
     @EnvironmentObject var authManager: AuthManager
-    @StateObject private var bookingManager = BookingsManager()
+    @EnvironmentObject  var bookingManager: BookingsManager
     
     var body: some View {
         NavigationStack{
@@ -76,6 +76,8 @@ struct AccountView: View {
                         Button(action: {
                             Task {
                                 await authManager.signOut()
+                                bookingManager.clearBookedDates()
+                                bookingManager.myBookings = []
                             }
                         }) {
                             Text("Sign Out")

@@ -13,6 +13,7 @@ struct BookingCalendarView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel: BookingCalendarViewModel
     @EnvironmentObject var authManager: AuthManager
+    @EnvironmentObject var bookingManager: BookingsManager
     
     let car: Car
     
@@ -143,107 +144,131 @@ struct BookingCalendarView: View {
                     
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                         ForEach(viewModel.extractDates()) { dayValue in
+                            
+                            // ⚠️ ЗМІННІ СТВОРЮЮТЬСЯ ТУТ:
+                            let isPast = dayValue.date < viewModel.calendar.startOfDay(for: Date())
+                            let isBooked = viewModel.isDateBooked(dayValue.date)
+                            let isDisabled = isPast || isBooked
+                            
                             DayCellView(
                                 dayValue: dayValue,
-                                startDate: viewModel.startDate, // Передаємо значення
+                                startDate: viewModel.startDate,
                                 endDate: viewModel.endDate,
-                                calendar: viewModel.calendar
+                                calendar: viewModel.calendar,
+                                isDisabled: isDisabled
                             )
                             .onTapGesture {
-                                withAnimation {
-                                    viewModel.handleDateSelection(date: dayValue.date)
+                                if !isDisabled {
+                                    withAnimation {
+                                        viewModel.handleDateSelection(date: dayValue.date)
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                
-                Spacer()
-                
-                // MARK: - Нижня кнопка
-                Button(action: {
                     
+                    Spacer()
                     
-                    if authManager.isAuthenticated {
-                        print("Користувач залогінений. Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
+                    // MARK: - Нижня кнопка
+                    Button(action: {
                         
-                        Task{
-                            if let usrID = authManager.currentUserProfile?.id {
-                                
-                                await viewModel.createBooking(userId: usrID, startDate: viewModel.startDate ?? Date(), endDate: viewModel.endDate ?? Date())
-                            }else { print("Booking. problem with usrID")}
+                        
+                        if authManager.isAuthenticated {
+                            print("Користувач залогінений. Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
+                            
+                            Task{
+                                if let usrID = authManager.currentUserProfile?.id {
+                                    
+                                    await viewModel.createBooking(userId: usrID, startDate: viewModel.startDate ?? Date(), endDate: viewModel.endDate ?? Date())
+                                }else { print("Booking. problem with usrID")}
+                            }
+                            
+                            
+                            dismiss()
+                        }else {
+                            print("Користувач є гостем.")
+                            withAnimation {
+                                authManager.showAuthView = true
+                            }
                         }
                         
                         
-                        dismiss()
-                    }else {
-                        print("Користувач є гостем.")
-                        withAnimation {
-                            authManager.showAuthView = true
-                        }
+                    }) {
+                        Text("Confirm Dates")
+                            .font(.headline)
+                            .foregroundColor((viewModel.startDate != nil && viewModel.endDate != nil) ? .black : .white.opacity(0.5))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background((viewModel.startDate != nil && viewModel.endDate != nil) ? Color.white : Color.white.opacity(0.1))
+                            .cornerRadius(40)
                     }
-                    
-
-                }) {
-                    Text("Confirm Dates")
-                        .font(.headline)
-                        .foregroundColor((viewModel.startDate != nil && viewModel.endDate != nil) ? .black : .white.opacity(0.5))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background((viewModel.startDate != nil && viewModel.endDate != nil) ? Color.white : Color.white.opacity(0.1))
-                        .cornerRadius(40)
+                    .disabled(viewModel.startDate == nil || viewModel.endDate == nil)
+                    .padding(.bottom, 20)
                 }
-                .disabled(viewModel.startDate == nil || viewModel.endDate == nil)
-                .padding(.bottom, 20)
+                .padding(24)
+                .task {
+                    bookingManager.clearBookedDates()
+                    await bookingManager.fetchBookedDatesForCar(carId: car.id)
+                }
+                .onChange(of: bookingManager.bookedDatesForCar) { _, newValue in
+                    // 2. Щойно менеджер отримав дати – передаємо їх у ViewModel
+                    withAnimation {
+                        viewModel.bookedDates = newValue
+                    }
+                }
+                .onDisappear {
+                    bookingManager.clearBookedDates()
+                }
             }
-            .padding(24)
+            .padding()
+            
+            
         }
         
     }
     
 }
 
-
-// Дизайн однієї клітинки дня
 struct DayCellView: View {
     let dayValue: DayValue
     let startDate: Date?
     let endDate: Date?
     let calendar: Calendar
+    let isDisabled: Bool // ⚠️ Додали сюди
     
     var body: some View {
         VStack {
             if dayValue.day != -1 {
-                let isPast = dayValue.date < calendar.startOfDay(for: Date())
                 let isStart = startDate != nil && calendar.isDate(dayValue.date, inSameDayAs: startDate!)
                 let isEnd = endDate != nil && calendar.isDate(dayValue.date, inSameDayAs: endDate!)
                 let isBetween = isDateBetween(dayValue.date)
                 
                 Text("\(dayValue.day)")
                     .font(.system(size: 16, weight: (isStart || isEnd) ? .bold : .regular))
-                    .foregroundColor(isPast ? .white.opacity(0.3) : .white)
+                    .foregroundColor(isDisabled ? .white.opacity(0.3) : .white) // Сірий текст
                     .frame(width: 40, height: 40)
                     .background(
                         ZStack {
-                            if isBetween || isStart || isEnd {
-                                Circle()
-                                    .fill(Color.myGreen.opacity(0.80))
-                                    .frame(height: 40)
-                                    .padding(.leading, isStart ? 20 : 0)
-                                    .padding(.trailing, isEnd ? 20 : 0)
-                            }
-                            if isStart || isEnd {
-                                Circle()
-                                    .frame(width: 40, height: 40)
-                                    .shadow(radius: 2)
-                                    .background(.ultraThinMaterial)
-                                    .environment(\.colorScheme, .light)
-                                    .cornerRadius(40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 40)
-                                            .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                    )
-                                
+                            if !isDisabled { // ⚠️ Зелені кружечки ТІЛЬКИ для вільних дат
+                                if isBetween || isStart || isEnd {
+                                    Circle()
+                                        .fill(Color.green.opacity(0.80))
+                                        .frame(height: 40)
+                                        .padding(.leading, isStart ? 20 : 0)
+                                        .padding(.trailing, isEnd ? 20 : 0)
+                                }
+                                if isStart || isEnd {
+                                    Circle()
+                                        .frame(width: 40, height: 40)
+                                        .shadow(radius: 2)
+                                        .background(.ultraThinMaterial)
+                                        .environment(\.colorScheme, .light)
+                                        .cornerRadius(40)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 40)
+                                                .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                                        )
+                                }
                             }
                         }
                     )
@@ -259,6 +284,9 @@ struct DayCellView: View {
     }
 }
 
+
+
+    
 #Preview {
     BookingCalendarView(car: Car(id: UUID(), isAvailable: true, pricePerDay: 100))
 }

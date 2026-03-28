@@ -209,6 +209,8 @@ struct BadgeView: View {
 // MARK: - Custom Button Style
 struct ReserveButton: View {
     let car: Car
+    @EnvironmentObject var bookingManager: BookingsManager
+    
     @State private var showBookingSheet = false
     
     var body: some View {
@@ -268,6 +270,7 @@ struct ReserveButton: View {
         )
         .sheet(isPresented: $showBookingSheet) {
             BookingCalendarView(car: car)
+                .environmentObject(bookingManager)
         }
         
     }

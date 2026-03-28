@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import Supabase
 
 struct DayValue: Identifiable {
     let id = UUID()
@@ -123,6 +124,22 @@ class BookingCalendarViewModel: ObservableObject {
             }
         }
         return days
+    }
+    
+    
+    //MARK: - Supabase actions
+    @MainActor
+    func createBooking(userId: UUID, startDate: Date, endDate: Date) async {
+        
+        let newBooking = Booking(id: UUID(), clientId: userId, carId: car.id, startDate: startDate, endDate: endDate, status: "pending", cost: totalCost)
+        
+        do{
+            try await supabase.from("bookings").insert(newBooking).execute()
+            print("Booking successfully created")
+        }catch {
+            print("Failed to create booking: \(error.localizedDescription)")
+        }
+        
     }
     
 }

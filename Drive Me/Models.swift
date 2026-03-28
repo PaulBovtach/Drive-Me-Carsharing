@@ -56,18 +56,23 @@ struct Car: Identifiable, Codable, Hashable {
 // MARK: - Booking Model (table bookings)
 struct Booking: Identifiable, Codable, Hashable {
     let id: UUID
-    let carId: UUID
     let clientId: UUID
-    var startDate: Date?
-    var endDate: Date?
-    var status: String?
+    let carId: UUID
+    var startDate: Date
+    var endDate: Date
+    var status: String
+    var cost: Int
+    
+    var car: Car?
     
     enum CodingKeys: String, CodingKey {
         case id
-        case carId = "car_id"
         case clientId = "client_id"
+        case carId = "car_id"
         case startDate = "start_date"
         case endDate = "end_date"
         case status
+        case cost
+        case car = "cars"
     }
 }

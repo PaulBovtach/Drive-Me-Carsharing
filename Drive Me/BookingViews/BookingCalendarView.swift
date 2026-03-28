@@ -166,6 +166,15 @@ struct BookingCalendarView: View {
                     
                     if authManager.isAuthenticated {
                         print("Користувач залогінений. Бронюємо з \(viewModel.startDate?.description ?? "") по \(viewModel.endDate?.description ?? "")")
+                        
+                        Task{
+                            if let usrID = authManager.currentUserProfile?.id {
+                                
+                                await viewModel.createBooking(userId: usrID, startDate: viewModel.startDate ?? Date(), endDate: viewModel.endDate ?? Date())
+                            }else { print("Booking. problem with usrID")}
+                        }
+                        
+                        
                         dismiss()
                     }else {
                         print("Користувач є гостем.")

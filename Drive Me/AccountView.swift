@@ -12,70 +12,124 @@ struct AccountView: View {
     @EnvironmentObject var authManager: AuthManager
     
     var body: some View {
-        VStack(spacing: 20) {
+        ZStack{
             
-            // Якщо користувач залогінений
-            if authManager.isAuthenticated {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
+                    Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
+                    Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            
+            VStack{
                 
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(Color.gray.opacity(0.5))
                 
-                // Показуємо імейл
-                Text(authManager.currentUser?.email ?? "Користувач")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                if authManager.isAuthenticated {
                 
-                // Показуємо роль з нашої таблиці profiles
-                Text("Роль: \(authManager.currentUserProfile?.role ?? "невідомо")")
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                // Кнопка ВИХОДУ
-                Button(action: {
-                    Task {
-                        await authManager.signOut()
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.system(size: 120))
+                        .foregroundColor(.green)
+                    
+                    //name and surname
+                    HStack(spacing: 8) {
+                        Text(authManager.currentUserProfile?.name ?? "<name>")
+                        Text(authManager.currentUserProfile?.surname ?? "<surname>")
                     }
-                }) {
-                    Text("Вийти з акаунту")
-                        .font(.headline)
-                        .foregroundColor(.red)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(12)
+                    .padding(.vertical)
+                    .font(.title)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.white)
+                    
+                    //additional information
+                    VStack(alignment: .leading){
+                        //email
+                        Text("Email: \(authManager.currentUserProfile?.email ?? "<email>")")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .fontWeight(.medium)
+                            .multilineTextAlignment(.center)
+                        //phone number
+                        Text("Phone number: \(authManager.currentUserProfile?.phoneNumber ?? "<number>")")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .fontWeight(.medium)
+                            .multilineTextAlignment(.center)
+                        //role
+                        Text("Role: \(authManager.currentUserProfile?.role ?? "Unknown")")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .fontWeight(.medium)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    
+                    
+                    
+                    // sign out btn
+                    Button(action: {
+                        Task {
+                            await authManager.signOut()
+                        }
+                    }) {
+                        Text("Sign Out")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal, 24)
+                    .buttonStyle(.glass)
+                    .environment(\.colorScheme, .dark)
+                    Spacer()
+                    
+                    //TODO: Preview for our bookings
+                    
+//                    ScrollView{
+//                      //here
+//                    }
+                    
+                    
+                } else {
+                    //if the user is guest
+                    Spacer()
+                    Text("You are not authorized")
+                        .foregroundStyle(.white)
+                        .font(.title)
+                        .fontWeight(.medium)
+                    
+                    Button(action: {
+                        withAnimation {
+                            authManager.showAuthView = true
+                        }
+                    }) {
+                        Text("Log in or Register")
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            
+                    }
+                    .padding(.horizontal, 24)
+                    .buttonStyle(.glass)
+                    .environment(\.colorScheme, .dark)
+                    Spacer()
+                    Spacer()
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 30)
-                
-            } else {
-                // Якщо користувач ГІСТЬ
-                Spacer()
-                Text("Ви не авторизовані")
-                    .font(.title2)
-                
-                Button(action: {
-                    authManager.showAuthView = true
-                }) {
-                    Text("Увійти або зареєструватися")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.black)
-                        .cornerRadius(12)
-                }
-                .padding(.horizontal, 24)
-                Spacer()
             }
+            .padding(.top, 40)
         }
-        .padding(.top, 40)
     }
 }
 #Preview {
     AccountView()
         .environmentObject(AuthManager(preview: true))
-       
-        
+    
+    
 }

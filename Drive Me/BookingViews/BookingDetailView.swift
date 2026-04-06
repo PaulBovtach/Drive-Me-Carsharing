@@ -12,6 +12,8 @@ struct BookingDetailView: View {
     @EnvironmentObject var bookingManager: BookingsManager
     @Environment(\.dismiss) var dismiss
     
+    @State private var showDeletionAlert = false
+    
     var body: some View {
         ZStack{
             
@@ -57,11 +59,7 @@ struct BookingDetailView: View {
                 
                 
                 Button{
-                    Task{
-                        await bookingManager.deleteMyBooking(bookingId: booking.id)
-                        dismiss()
-                        
-                    }
+                    showDeletionAlert = true
                     
                 }label: {
                     HStack{
@@ -81,6 +79,18 @@ struct BookingDetailView: View {
             .padding()
             .navigationTitle("Booking details")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Delete booking", isPresented: $showDeletionAlert) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Sign Out", role: .destructive) {
+                        Task{
+                            await bookingManager.deleteMyBooking(bookingId: booking.id)
+                            dismiss()
+                        }
+                    }
+                } message: {
+                    Text("Are you sure you want to delete this booking?")
+                }
+            
         }
     }
 }

@@ -12,6 +12,8 @@ struct AccountView: View {
     @EnvironmentObject var authManager: AuthManager
     @EnvironmentObject var bookingManager: BookingsManager
     
+    @State private var showSignOutAlert = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -61,11 +63,7 @@ struct AccountView: View {
                             
 
                             Button(action: {
-                                Task {
-                                    await authManager.signOut()
-                                    bookingManager.clearBookedDates()
-                                    bookingManager.myBookings = []
-                                }
+                                showSignOutAlert = true
                             }) {
                                 Text("Sign Out")
                                     .font(.headline)
@@ -171,6 +169,25 @@ struct AccountView: View {
                         await bookingManager.fetchMyBookings(userId: usrID)
                     }
                 }
+                .onChange(of: authManager.currentUserProfile) { _, newProfile in
+                    if let profile = newProfile {
+                        Task {
+                            await bookingManager.fetchMyBookings(userId: profile.id)
+                        }
+                    }
+                }
+                .alert("Sign Out", isPresented: $showSignOutAlert) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Sign Out", role: .destructive) {
+                        Task {
+                                await authManager.signOut()
+                                bookingManager.clearBookedDates()
+                                bookingManager.myBookings = []
+                            }
+                        }
+                    } message: {
+                        Text("Are you sure you want to sign out of your account?")
+                    }
             }
         }
     }

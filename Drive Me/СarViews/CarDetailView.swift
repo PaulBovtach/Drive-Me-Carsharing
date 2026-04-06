@@ -11,6 +11,9 @@ import SwiftUICarousel
 struct CarDetailView: View {
     let car: Car
     
+    @State private var showBookingSheet = false
+    @EnvironmentObject var bookingManager: BookingsManager
+    
     var body: some View {
         ZStack{
             
@@ -75,24 +78,6 @@ struct CarDetailView: View {
                             .padding(.top, 8)
                         }
                         
-                        HStack(spacing: 8) {
-                            Image(systemName: car.isAvailable == true ? "checkmark.seal.fill" : "xmark.seal.fill")
-                                .foregroundColor( car.isAvailable == true ? .green : .red)
-                            
-                            if car.isAvailable {
-                                Text("Available for rent now")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                            }else {
-                                Text("Unavailable for rent now, try another car or give glance at calandar")
-                                    .font(.headline)
-                                    .foregroundStyle(.white)
-                            }
-                            
-                            
-                        }
-                        .padding(.top, 8)
-                        
                         Divider()
                             .padding(.vertical, 8)
                             .foregroundStyle(.myGreen)
@@ -117,9 +102,31 @@ struct CarDetailView: View {
             
             // MARK: - 3. Кнопка "Забронювати" внизу екрану
             .overlay(alignment: .bottom) {
-                ReserveButton(car: car)
+                Button(action: {
+                    print("Reserve \(car.brand ?? "")")
+                    showBookingSheet = true
+                }) {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Book car now!")
+                            .fontWeight(.bold)
+                    }
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .cornerRadius(40)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 32)
+                }
+                .buttonStyle(BouncyGlassButtonStyle())
             }
             
+        }
+        .sheet(isPresented: $showBookingSheet) {
+            BookingCalendarView(car: car)
+                .environmentObject(bookingManager)
         }
     }
 }
@@ -181,10 +188,13 @@ struct ImageCardCarousel: View {
                 .cornerRadius(12)
                 .padding(.horizontal)
         }
+        
     }
+    
+    
+    
 }
 
-// MARK: - Допоміжний компонент для характеристик
 struct BadgeView: View {
     let icon: String
     let text: String
@@ -201,79 +211,6 @@ struct BadgeView: View {
         .cornerRadius(10)
     }
 }
-
-
-
-
-
-// MARK: - Custom Button Style
-struct ReserveButton: View {
-    let car: Car
-    @State private var showBookingSheet = false
-    
-    var body: some View {
-        Button(action: {
-            print("Reserve \(car.brand ?? "")")
-            showBookingSheet = true
-        }) {
-            // Внутрішній контент кнопки
-            HStack {
-                // Кругла іконка зліва (як на скріншоті)
-                ZStack {
-                    Circle()
-                        .fill(Color.black.opacity(0.3))
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "checkmark")
-                        .foregroundColor(.white)
-                        .font(.system(size: 18, weight: .bold))
-                }
-                
-                Spacer()
-                Text("Reserve Now")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(.white)
-                Spacer()
-                
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
-            .background(.ultraThinMaterial)
-            .environment(\.colorScheme, .dark)
-            // Додаємо легкий зелений відтінок склу
-            .background(Color.greenBackground.opacity(0.3))
-            .cornerRadius(40) // Сильне заокруглення (pill shape)
-            // Легка біла рамка зверху для ефекту об'єму (скла)
-            .overlay(
-                RoundedRectangle(cornerRadius: 40)
-                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-            )
-        }
-        // Застосовуємо наш кастомний стиль з анімацією
-        .buttonStyle(BouncyGlassButtonStyle())
-        
-        .padding(.horizontal, 24)
-        .padding(.bottom, 32)
-        
-        // Фоновий градієнт екрану (щоб текст під кнопкою плавно зникав)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 20/255, green: 40/255, blue: 15/255).opacity(0),
-                    Color(red: 20/255, green: 40/255, blue: 15/255)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        )
-        .sheet(isPresented: $showBookingSheet) {
-            BookingCalendarView(car: car)
-        }
-        
-    }
-}
-
-
 
 struct BouncyGlassButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

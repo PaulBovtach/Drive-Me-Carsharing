@@ -44,16 +44,16 @@ class AuthManager: ObservableObject {
     func register(email: String, password: String, name: String, surname: String, phoneNumber: String) async {
         
         do {
-            //1. Creating user in hidded table 'auth.users'
+            // Creating user in hidded table 'auth.users'
             let response = try await supabase.auth.signUp(email: email, password: password)
             
-            //2. Getting a user's id from table 'auth.users'
+            // Getting a user's id from table 'auth.users'
             let userId = response.user.id
             
-            //3. Forming user's row in table 'profiles'
+            // Forming user's row in table 'profiles'
             let newProfile = UserProfile(id: userId, name: name, surname: surname, role: "client", phoneNumber: phoneNumber, email: email)
             
-            //4. Writing to my table 'profiles'
+            // Writing to my table 'profiles'
             try await supabase.from("profiles").insert(newProfile).execute()
             
             self.currentUserProfile = newProfile

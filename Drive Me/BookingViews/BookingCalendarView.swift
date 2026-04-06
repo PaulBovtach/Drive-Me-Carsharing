@@ -38,7 +38,6 @@ struct BookingCalendarView: View {
             .ignoresSafeArea()
             
             VStack(alignment: .leading, spacing: 24) {
-                // MARK: - Верхня панель (Кнопка X та Clear)
                 HStack {
                     Button(action: { withAnimation {
                         dismiss()
@@ -96,7 +95,6 @@ struct BookingCalendarView: View {
                     .padding(.top, 8)
                 }
                 
-                // MARK: - Календар
                 VStack(spacing: 20) {
                     //Buttons to swap months
                     HStack {
@@ -145,7 +143,6 @@ struct BookingCalendarView: View {
                     }
                     
                     // Date grid
-                    
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                         ForEach(viewModel.extractDates()) { dayValue in
                             
@@ -187,10 +184,8 @@ struct BookingCalendarView: View {
                                 }else { print("Booking. problem with usrID")}
                             }
                             
-                            
-                            dismiss()
                         }else {
-                            print("Користувач є гостем.")
+                            print("User is guest")
                             withAnimation {
                                 authManager.showAuthView = true
                             }
@@ -222,11 +217,22 @@ struct BookingCalendarView: View {
                 .onDisappear {
                     bookingManager.clearBookedDates()
                 }
+                
             }
             .padding()
             
             
         }
+        .alert(viewModel.alertTitle, isPresented: $viewModel.showAlertBookingStatus) {
+            Button("OK", role: .cancel){
+                if viewModel.isSuccess {
+                    dismiss()
+                }
+            }
+        }message: {
+            Text(viewModel.alertMessage)
+        }
+        
         
     }
     

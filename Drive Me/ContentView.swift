@@ -26,7 +26,7 @@ struct ContentView: View {
             }
             
             Tab {
-                Text("MapKit integration")
+                MapInfoView()
             }label: {
                 Image(systemName: "map")
                 Text("Map")

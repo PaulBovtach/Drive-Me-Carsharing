@@ -29,6 +29,11 @@ class BookingCalendarViewModel: ObservableObject {
     let calendar = Calendar.current
     let daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
     
+    @Published var alertTitle = ""
+    @Published var alertMessage = ""
+    @Published var showAlertBookingStatus = false
+    @Published var isSuccess = false
+    
     init(car: Car) {
         self.car = car
     }
@@ -110,12 +115,11 @@ class BookingCalendarViewModel: ObservableObject {
         return true
     }
     
-    // 3. ПОВНІСТЮ ЗАМІНІТЬ вашу handleDateSelection на цю:
     func handleDateSelection(date: Date) {
         let normalizedDate = calendar.startOfDay(for: date)
         
         if normalizedDate < calendar.startOfDay(for: Date()) { return }
-        if isDateBooked(normalizedDate) { return } // Блокуємо зайняті
+        if isDateBooked(normalizedDate) { return }
         
         if startDate == nil {
             startDate = normalizedDate
@@ -123,7 +127,6 @@ class BookingCalendarViewModel: ObservableObject {
             if normalizedDate < start {
                 startDate = normalizedDate
             } else {
-                // Перевіряємо, чи немає зайнятих днів МІЖ вибраними
                 if isRangeValid(start: start, end: normalizedDate) {
                     endDate = normalizedDate
                 } else {
@@ -137,8 +140,6 @@ class BookingCalendarViewModel: ObservableObject {
         }
     }
     
-    
-    // MARK: - Генератор сітки календаря
     func extractDates() -> [DayValue] {
         var days: [DayValue] = []
         guard let month = calendar.dateInterval(of: .month, for: currentMonth)?.start else { return [] }
@@ -156,7 +157,7 @@ class BookingCalendarViewModel: ObservableObject {
     }
     
     
-    //MARK: - Supabase actions
+    //MARK: Supabase actions
     @MainActor
     func createBooking(userId: UUID, startDate: Date, endDate: Date) async {
         
@@ -165,8 +166,19 @@ class BookingCalendarViewModel: ObservableObject {
         do{
             try await supabase.from("bookings").insert(newBooking).execute()
             print("Booking successfully created")
+            
+            self.alertTitle = "Success!"
+            self.alertMessage = "Successfully created booking. Wait until it will be confirmed."
+            self.isSuccess = true
+            self.showAlertBookingStatus = true
         }catch {
+            
             print("Failed to create booking: \(error.localizedDescription)")
+            
+            self.alertTitle = "Fail!"
+            self.alertMessage = "Something went wrong. Check Internet connection or try again later."
+            self.isSuccess = false
+            self.showAlertBookingStatus = true
         }
         
     }

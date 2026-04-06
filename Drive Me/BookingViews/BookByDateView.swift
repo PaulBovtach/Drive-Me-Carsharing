@@ -15,7 +15,6 @@ struct BookByDateView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Фоновий градієнт
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 50/255, green: 80/255, blue: 40/255),
@@ -34,7 +33,6 @@ struct BookByDateView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 20) {
                             
-                            // MARK: - Заголовок та кнопка Clear
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(viewModel.summaryText)
@@ -70,9 +68,7 @@ struct BookByDateView: View {
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
                             
-                            // MARK: - Календар
                             VStack(spacing: 20) {
-                                // Перемикач місяців
                                 HStack {
                                     Button(action: { withAnimation { viewModel.changeMonth(by: -1) } }) {
                                         Image(systemName: "chevron.left")
@@ -138,7 +134,6 @@ struct BookByDateView: View {
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 24)
                             
-                            // MARK: - Список доступних машин
                             if viewModel.startDate != nil && viewModel.endDate != nil {
                                 let availableCars = viewModel.availableCarsForSelection
                                 
@@ -162,21 +157,20 @@ struct BookByDateView: View {
                                     LazyVStack(spacing: 20) {
                                         ForEach(availableCars) { car in
                                             NavigationLink(destination: ConfirmBookingView(
-                                                    car: car,
-                                                    startDate: viewModel.startDate!,
-                                                    endDate: viewModel.endDate!
-                                                )) {
-                                                    CarRowView(car: car)
-                                                        .glassEffect()
-                                                }
-                                                .buttonStyle(BouncyGlassButtonStyle())
+                                                car: car,
+                                                startDate: viewModel.startDate!,
+                                                endDate: viewModel.endDate!
+                                            )) {
+                                                CarRowView(car: car)
+                                                    .glassEffect()
+                                            }
+                                            .buttonStyle(BouncyGlassButtonStyle())
                                         }
                                     }
                                     .padding(.horizontal, 24)
                                     .padding(.bottom, 40)
                                 }
                             } else {
-                                // Якщо дати не вибрані
                                 VStack(spacing: 12) {
                                     Image(systemName: "calendar.badge.clock")
                                         .font(.system(size: 50))

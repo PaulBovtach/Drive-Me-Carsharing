@@ -62,7 +62,6 @@ class BookingsManager: ObservableObject {
             
             var dates: [Date] = []
             let calendar = Calendar.current
-            // Проходимось по кожному бронюванню і розбиваємо діапазон на окремі дні
             for booking in bookings {
                 var currentDate = calendar.startOfDay(for: booking.startDate)
                 let endDate = calendar.startOfDay(for: booking.endDate)

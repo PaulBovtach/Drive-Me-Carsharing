@@ -26,7 +26,6 @@ class CarViewModel: ObservableObject {
             self.cars = fetchedCars
             
         } catch {
-            // Якщо сталася помилка (наприклад, немає інтернету), друкуємо її в консоль Xcode
             print("Error while fethcing cars list: \(error.localizedDescription)")
         }
         

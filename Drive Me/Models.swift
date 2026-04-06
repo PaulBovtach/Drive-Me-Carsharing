@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 // MARK: - User profile model (table profiles)
 struct UserProfile: Identifiable, Codable, Hashable {
@@ -76,3 +77,48 @@ struct Booking: Identifiable, Codable, Hashable {
         case car = "cars"
     }
 }
+
+
+// MARK: - Map Models
+
+// types of locations
+enum LocationType: String, Codable{
+    case dropoff = "Drop-off Only"
+    case both = "Pickup & Drop-off"
+}
+
+// map location for dot
+struct MapLocation: Identifiable, Codable, Hashable {
+    let id: UUID
+    let name: String
+    let address: String
+    let latitude: Double
+    let longitude: Double
+    let type: LocationType
+    
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+// struct for json parsing zones
+struct ZoneCoordinate: Codable, Hashable {
+    let lat: Double
+    let lng: Double
+    
+    var clCoordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
+}
+
+// map location for zones (polygon)
+struct MapZone: Identifiable, Codable {
+    let id: UUID
+    var name: String
+    var coordinates: [ZoneCoordinate]
+    
+    var clCoordinates: [CLLocationCoordinate2D] {
+        coordinates.map { $0.clCoordinate }
+    }
+}
+

@@ -19,7 +19,7 @@ struct ContentView: View {
                 Text("Cars")
             }
             Tab {
-                Text("Rent car demanding on date ")
+                BookByDateView()
             }label: {
                 Image(systemName: "calendar")
                 Text("Dates")

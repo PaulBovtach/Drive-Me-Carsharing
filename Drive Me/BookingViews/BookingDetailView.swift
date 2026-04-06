@@ -81,7 +81,7 @@ struct BookingDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .alert("Delete booking", isPresented: $showDeletionAlert) {
                     Button("Cancel", role: .cancel) { }
-                    Button("Sign Out", role: .destructive) {
+                    Button("Delete", role: .destructive) {
                         Task{
                             await bookingManager.deleteMyBooking(bookingId: booking.id)
                             dismiss()

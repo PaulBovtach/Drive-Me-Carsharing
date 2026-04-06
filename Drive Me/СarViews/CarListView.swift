@@ -52,7 +52,6 @@ struct CarListView: View {
                                         CarRowView(car: car)
                                             .glassEffect()
                                     }
-                                    
                                     .buttonStyle(BouncyGlassButtonStyle())
                                     
                                 }

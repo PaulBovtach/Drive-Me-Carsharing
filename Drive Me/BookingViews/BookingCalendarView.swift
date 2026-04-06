@@ -46,14 +46,14 @@ struct BookingCalendarView: View {
                         Image(systemName: "xmark")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
+                            .frame(width: 40, height: 50)
                             .clipShape(Circle())
-                            .glassy()
+                            
                         
                         
                     }
-                    
-                    .buttonStyle(BouncyGlassButtonStyle())
+                    .buttonStyle(.glass)
+                    .environment(\.colorScheme, .dark)
                     
                     
                     Spacer()
@@ -69,9 +69,9 @@ struct BookingCalendarView: View {
                             .foregroundColor(.white)
                             .frame(width: 100, height: 50)
                             .clipShape(Capsule())
-                            .glassy()
                     }
-                    .buttonStyle(BouncyGlassButtonStyle())
+                    .buttonStyle(.glass)
+                    .environment(\.colorScheme, .dark)
                 }
                 
                 // MARK: - Заголовок (Кількість днів)
@@ -98,18 +98,19 @@ struct BookingCalendarView: View {
                 
                 // MARK: - Календар
                 VStack(spacing: 20) {
-                    // Перемикач місяців
+                    //Buttons to swap months
                     HStack {
                         Button(action: { withAnimation {
                             viewModel.changeMonth(by: -1)
                         } }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(.white)
-                                .frame(width: 44, height: 44)
+                                .frame(width: 40, height: 30)
                                 .clipShape(Circle())
-                                .glassy()
+                                
                         }
-                        .buttonStyle(BouncyGlassButtonStyle())
+                        .buttonStyle(.glass)
+                        .environment(\.colorScheme, .dark)
                         
                         Spacer()
                         
@@ -122,14 +123,17 @@ struct BookingCalendarView: View {
                         Button(action: { withAnimation {
                             viewModel.changeMonth(by: 1)
                         } }) {
-                            Image(systemName: "chevron.right").frame(width: 44, height: 44)
-                                .clipShape(Circle()).foregroundColor(.white)
-                                .glassy()
+                            Image(systemName: "chevron.right")
+                                .frame(width: 40, height: 30)
+                                .clipShape(Circle())
+                                .foregroundColor(.white)
+                                
                         }
-                        .buttonStyle(BouncyGlassButtonStyle())
+                        .buttonStyle(.glass)
+                        .environment(\.colorScheme, .dark)
                     }
                     
-                    // Дні тижня
+                    // Days of month
                     HStack {
                         ForEach(viewModel.daysOfWeek, id: \.self) { day in
                             Text(day)
@@ -140,12 +144,12 @@ struct BookingCalendarView: View {
                         }
                     }
                     
-                    // Сітка дат
+                    // Date grid
                     
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                         ForEach(viewModel.extractDates()) { dayValue in
                             
-                            // ⚠️ ЗМІННІ СТВОРЮЮТЬСЯ ТУТ:
+                            
                             let isPast = dayValue.date < viewModel.calendar.startOfDay(for: Date())
                             let isBooked = viewModel.isDateBooked(dayValue.date)
                             let isDisabled = isPast || isBooked
@@ -211,7 +215,6 @@ struct BookingCalendarView: View {
                     await bookingManager.fetchBookedDatesForCar(carId: car.id)
                 }
                 .onChange(of: bookingManager.bookedDatesForCar) { _, newValue in
-                    // 2. Щойно менеджер отримав дати – передаємо їх у ViewModel
                     withAnimation {
                         viewModel.bookedDates = newValue
                     }
@@ -234,7 +237,7 @@ struct DayCellView: View {
     let startDate: Date?
     let endDate: Date?
     let calendar: Calendar
-    let isDisabled: Bool // ⚠️ Додали сюди
+    let isDisabled: Bool
     
     var body: some View {
         VStack {
@@ -249,7 +252,7 @@ struct DayCellView: View {
                     .frame(width: 40, height: 40)
                     .background(
                         ZStack {
-                            if !isDisabled { // ⚠️ Зелені кружечки ТІЛЬКИ для вільних дат
+                            if !isDisabled {
                                 if isBetween || isStart || isEnd {
                                     Circle()
                                         .fill(Color.green.opacity(0.80))

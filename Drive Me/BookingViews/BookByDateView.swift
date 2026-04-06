@@ -57,15 +57,14 @@ struct BookByDateView: View {
                                             viewModel.endDate = nil
                                         }
                                     }) {
-                                        Text("Clear")
+                                        Text("Clear date")
                                             .font(.subheadline)
                                             .foregroundColor(.white)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 8)
-                                            .background(.ultraThinMaterial)
+                                            .frame(width: 100, height: 35)
                                             .clipShape(Capsule())
-                                            .environment(\.colorScheme, .dark)
                                     }
+                                    .buttonStyle(.glass)
+                                    .environment(\.colorScheme, .dark)
                                 }
                             }
                             .padding(.horizontal, 24)
@@ -76,26 +75,39 @@ struct BookByDateView: View {
                                 // Перемикач місяців
                                 HStack {
                                     Button(action: { withAnimation { viewModel.changeMonth(by: -1) } }) {
-                                        Image(systemName: "chevron.left").foregroundColor(.white).frame(width: 44, height: 44).clipShape(Circle()).glassy()
-                                    }.buttonStyle(BouncyGlassButtonStyle())
+                                        Image(systemName: "chevron.left")
+                                            .foregroundColor(.white)
+                                            .frame(width: 40, height: 30)
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.glass)
+                                    .environment(\.colorScheme, .dark)
                                     
                                     Spacer()
-                                    Text(viewModel.monthYearString()).font(.headline).foregroundColor(.white)
+                                    Text(viewModel.monthYearString())
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    
                                     Spacer()
                                     
                                     Button(action: { withAnimation { viewModel.changeMonth(by: 1) } }) {
-                                        Image(systemName: "chevron.right").foregroundColor(.white).frame(width: 44, height: 44).clipShape(Circle()).glassy()
-                                    }.buttonStyle(BouncyGlassButtonStyle())
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(.white)
+                                            .frame(width: 40, height: 30)
+                                            .clipShape(Circle())
+                                    }
+                                    .buttonStyle(.glass)
+                                    .environment(\.colorScheme, .dark)
                                 }
                                 
-                                // Дні тижня
+                                
                                 HStack {
                                     ForEach(viewModel.daysOfWeek, id: \.self) { day in
                                         Text(day).font(.caption).fontWeight(.medium).foregroundColor(.white.opacity(0.5)).frame(maxWidth: .infinity)
                                     }
                                 }
                                 
-                                // Сітка дат
+                                // Dates grid
                                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 12) {
                                     ForEach(viewModel.extractDates()) { dayValue in
                                         let isPast = dayValue.date < viewModel.calendar.startOfDay(for: Date())
@@ -149,11 +161,15 @@ struct BookByDateView: View {
                                     
                                     LazyVStack(spacing: 20) {
                                         ForEach(availableCars) { car in
-                                            NavigationLink(destination: CarDetailView(car: car)) {
-                                                CarRowView(car: car)
-                                                    .glassEffect()
-                                            }
-                                            .buttonStyle(BouncyGlassButtonStyle())
+                                            NavigationLink(destination: ConfirmBookingView(
+                                                    car: car,
+                                                    startDate: viewModel.startDate!,
+                                                    endDate: viewModel.endDate!
+                                                )) {
+                                                    CarRowView(car: car)
+                                                        .glassEffect()
+                                                }
+                                                .buttonStyle(BouncyGlassButtonStyle())
                                         }
                                     }
                                     .padding(.horizontal, 24)
@@ -186,7 +202,6 @@ struct BookByDateView: View {
     }
 }
 
-// Клітинка (копія вашої, з іншою назвою)
 struct GlobalDayCellView: View {
     let dayValue: DayValue
     let startDate: Date?

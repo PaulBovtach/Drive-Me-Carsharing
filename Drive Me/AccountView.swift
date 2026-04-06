@@ -10,11 +10,11 @@ import Supabase
 
 struct AccountView: View {
     @EnvironmentObject var authManager: AuthManager
-    @EnvironmentObject  var bookingManager: BookingsManager
+    @EnvironmentObject var bookingManager: BookingsManager
     
     var body: some View {
-        NavigationStack{
-            ZStack{
+        NavigationStack {
+            ZStack {
                 
                 LinearGradient(
                     gradient: Gradient(colors: [
@@ -27,163 +27,157 @@ struct AccountView: View {
                 )
                 .ignoresSafeArea()
                 
-                
-                VStack{
-                    
-                    
-                    if authManager.isAuthenticated {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 24) {
                         
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 120))
-                            .foregroundColor(.green)
-                        
-                        //name and surname
-                        HStack(spacing: 8) {
-                            Text(authManager.currentUserProfile?.name ?? "<name>")
-                            Text(authManager.currentUserProfile?.surname ?? "<surname>")
-                        }
-                        .padding(.vertical)
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.white)
-                        
-                        //additional information
-                        VStack(alignment: .leading){
-                            //email
-                            Text("Email: \(authManager.currentUserProfile?.email ?? "<email>")")
-                                .font(.title3)
+                        if authManager.isAuthenticated {
+                            // MARK: - Інформація про користувача
+                            VStack(spacing: 12) {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .font(.system(size: 100))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
+                                
+                                
+                                HStack(spacing: 8) {
+                                    Text(authManager.currentUserProfile?.name ?? "<name>")
+                                    Text(authManager.currentUserProfile?.surname ?? "<surname>")
+                                }
+                                .font(.title)
+                                .fontWeight(.bold)
                                 .foregroundStyle(.white)
-                                .fontWeight(.medium)
-                                .multilineTextAlignment(.center)
-                            //phone number
-                            Text("Phone number: \(authManager.currentUserProfile?.phoneNumber ?? "<number>")")
-                                .font(.title3)
-                                .foregroundStyle(.white)
-                                .fontWeight(.medium)
-                                .multilineTextAlignment(.center)
-                            //role
-                            Text("Role: \(authManager.currentUserProfile?.role ?? "Unknown")")
-                                .font(.title3)
-                                .foregroundStyle(.white)
-                                .fontWeight(.medium)
-                                .multilineTextAlignment(.center)
-                        }
-                        .padding()
-                        
-                        
-                        
-                        // sign out btn
-                        Button(action: {
-                            Task {
-                                await authManager.signOut()
-                                bookingManager.clearBookedDates()
-                                bookingManager.myBookings = []
                             }
-                        }) {
-                            Text("Sign Out")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(10)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
-                        .padding(.horizontal, 24)
-                        .buttonStyle(.glass)
-                        .environment(\.colorScheme, .dark)
-                        Spacer()
-                        
-                        //TODO: Preview for our bookings
-                        
-                        Text("My bookings")
+                            .padding(.top, 20)
+                            
+                            
+                            VStack(alignment: .leading, spacing: 12) {
+                                BadgeView(icon: "envelope.fill", text: authManager.currentUserProfile?.email ?? "<email>")
+                                BadgeView(icon: "phone.fill", text: authManager.currentUserProfile?.phoneNumber ?? "<number>")
+                                BadgeView(icon: "person.text.rectangle", text: "Role: \(authManager.currentUserProfile?.role?.capitalized ?? "Unknown")")
+                            }
                             .foregroundStyle(.white)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        
-                        ScrollView{
-                            VStack(spacing: 8){
-                                //text
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            
+
+                            Button(action: {
+                                Task {
+                                    await authManager.signOut()
+                                    bookingManager.clearBookedDates()
+                                    bookingManager.myBookings = []
+                                }
+                            }) {
+                                Text("Sign Out")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(10)
+                            }
+                            .padding(.horizontal, 24)
+                            .buttonStyle(.glass)
+                            .environment(\.colorScheme, .dark)
+                            
+                            Divider()
+                                .background(Color.white.opacity(0.2))
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 24)
+                            
+                            // MARK: - Мої бронювання
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("My bookings")
+                                    .foregroundStyle(.white)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .padding(.horizontal, 24)
+                                
                                 if bookingManager.myBookings.isEmpty {
                                     Text("You have no bookings yet.")
-                                        .foregroundStyle(.gray)
-                                        .padding(.top, 20)
-                                }
-                                //navlinks
-                                ForEach(bookingManager.myBookings){booking in
-                                    NavigationLink{
-                                        BookingDetailView(booking: booking)
-                                            .environmentObject(bookingManager)
-                                    }label: {
-                                        HStack{
-                                            Image(systemName: booking.status == "pending" ? "clock.fill" : "checkmark.circle.fill")
-                                                .foregroundStyle(.white)
-                                            VStack{
-                                                Text(booking.car?.brand ?? "Unknown")
-                                                    .font(.headline)
-                                                    .foregroundColor(.white)
-                                                
-                                                Text("\(booking.startDate.formatted(date: .numeric, time: .omitted)) - \(booking.endDate.formatted(date: .numeric, time: .omitted))")
-                                                    .font(.subheadline)
-                                                    .foregroundColor(.gray)
+                                        .foregroundStyle(.white.opacity(0.6))
+                                        .padding(.horizontal, 24)
+                                } else {
+
+                                    VStack(spacing: 12) {
+                                        ForEach(bookingManager.myBookings) { booking in
+
+                                            NavigationLink {
+                                                BookingDetailView(booking: booking)
+                                                    .environmentObject(bookingManager)
+                                            } label: {
+                                                HStack {
+                                                    Image(systemName: booking.status == "pending" ? "clock.fill" : "checkmark.circle.fill")
+                                                        .foregroundStyle(.white)
+                                                        .font(.title)
+                                                    
+                                                    VStack(alignment: .leading, spacing: 4) {
+                                                        Text(booking.car?.brand ?? "Unknown")
+                                                            .font(.headline)
+                                                            .foregroundColor(.white)
+                                                        
+                                                        Text("\(booking.startDate.formatted(date: .numeric, time: .omitted)) - \(booking.endDate.formatted(date: .numeric, time: .omitted))")
+                                                            .font(.subheadline)
+                                                            .foregroundColor(.gray)
+                                                    }
+                                                    Spacer()
+                                                    Image(systemName: "chevron.right")
+                                                        .foregroundColor(.gray)
+                                                }
+                                                .padding(10)
                                             }
-                                            Spacer()
-                                            Image(systemName: "chevron.right")
-                                                .foregroundColor(.gray)
+                                            .buttonStyle(.glass)
+                                            .environment(\.colorScheme, .dark)
                                         }
-                                        .padding(10)
                                     }
-                                    .buttonStyle(.glass)
-                                    .environment(\.colorScheme, .dark)
+                                    .padding(.horizontal, 24)
                                 }
-                                
-                                
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal)
-                        .task {
-                            if let usrID = authManager.currentUser?.id {
-                                await bookingManager.fetchMyBookings(userId: usrID)
-                            }
-                        }
-                        
-                        
-                    } else {
-                        //if the user is guest
-                        Spacer()
-                        Text("You are not authorized")
-                            .foregroundStyle(.white)
-                            .font(.title)
-                            .fontWeight(.medium)
-                        
-                        Button(action: {
-                            withAnimation {
-                                authManager.showAuthView = true
-                            }
-                        }) {
-                            Text("Log in or Register")
-                                .font(.headline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
+                            .padding(.bottom, 40)
                             
+                        } else {
+
+                            VStack(spacing: 20) {
+                                Image(systemName: "person.crop.circle.badge.xmark")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.gray.opacity(0.8))
+                                
+                                Text("You are not authorized")
+                                    .foregroundStyle(.white)
+                                    .font(.title2)
+                                    .fontWeight(.medium)
+                                
+
+                                Button(action: {
+                                    withAnimation {
+                                        authManager.showAuthView = true
+                                    }
+                                }) {
+                                    Text("Log in or Register")
+                                        .font(.headline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                }
+                                .padding(.horizontal, 24)
+                                .buttonStyle(.glass)
+                                .environment(\.colorScheme, .dark)
+                            }
+                            .padding(.top, 100)
                         }
-                        .padding(.horizontal, 24)
-                        .buttonStyle(.glass)
-                        .environment(\.colorScheme, .dark)
-                        Spacer()
-                        Spacer()
                     }
                 }
-                .padding(.top, 40)
+                .task {
+                    if let usrID = authManager.currentUser?.id {
+                        await bookingManager.fetchMyBookings(userId: usrID)
+                    }
+                }
             }
         }
     }
 }
+
 #Preview {
     AccountView()
         .environmentObject(AuthManager(preview: true))
-    
-    
+        .environmentObject(BookingsManager())
 }

@@ -195,7 +195,6 @@ struct ImageCardCarousel: View {
     
 }
 
-// MARK: - Допоміжний компонент для характеристик
 struct BadgeView: View {
     let icon: String
     let text: String
@@ -212,78 +211,6 @@ struct BadgeView: View {
         .cornerRadius(10)
     }
 }
-
-
-
-
-
-// MARK: - Custom Button Style
-//struct ReserveButton: View {
-//    let car: Car
-//    
-//    @State private var showBookingSheet = false
-//    
-//    var body: some View {
-//        Button(action: {
-//            print("Reserve \(car.brand ?? "")")
-//            showBookingSheet = true
-//        }) {
-//            // Внутрішній контент кнопки
-//            HStack {
-//                // Кругла іконка зліва (як на скріншоті)
-//                ZStack {
-//                    Circle()
-//                        .fill(Color.black.opacity(0.3))
-//                        .frame(width: 44, height: 44)
-//                    Image(systemName: "checkmark")
-//                        .foregroundColor(.white)
-//                        .font(.system(size: 18, weight: .bold))
-//                }
-//                
-//                Spacer()
-//                Text("Reserve Now")
-//                    .font(.system(size: 18, weight: .semibold))
-//                    .foregroundColor(.white)
-//                Spacer()
-//                
-//            }
-//            .padding(.horizontal, 8)
-//            .padding(.vertical, 8)
-//            .background(.ultraThinMaterial)
-//            .environment(\.colorScheme, .dark)
-//            // Додаємо легкий зелений відтінок склу
-//            .background(Color.greenBackground.opacity(0.3))
-//            .cornerRadius(40) // Сильне заокруглення (pill shape)
-//            // Легка біла рамка зверху для ефекту об'єму (скла)
-//            .overlay(
-//                RoundedRectangle(cornerRadius: 40)
-//                    .stroke(Color.white.opacity(0.4), lineWidth: 1)
-//            )
-//        }
-//        // Застосовуємо наш кастомний стиль з анімацією
-//        .buttonStyle(BouncyGlassButtonStyle())
-//        
-//        .padding(.horizontal, 24)
-//        .padding(.bottom, 32)
-//        
-//        // Фоновий градієнт екрану (щоб текст під кнопкою плавно зникав)
-//        .background(
-//            LinearGradient(
-//                gradient: Gradient(colors: [
-//                    Color(red: 20/255, green: 40/255, blue: 15/255).opacity(0),
-//                    Color(red: 20/255, green: 40/255, blue: 15/255)
-//                ]),
-//                startPoint: .top,
-//                endPoint: .bottom
-//            )
-//            .ignoresSafeArea()
-//        )
-//        
-//        
-//    }
-//}
-
-
 
 struct BouncyGlassButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

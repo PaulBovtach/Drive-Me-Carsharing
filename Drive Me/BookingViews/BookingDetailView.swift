@@ -29,7 +29,6 @@ struct BookingDetailView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                // Іконка статусу
                 Image(systemName: booking.status == "pending" ? "clock.fill" : "checkmark.circle.fill")
                     .font(.system(size: 60))
                     .foregroundColor(booking.status == "pending" ? .orange : .green)
@@ -42,7 +41,6 @@ struct BookingDetailView: View {
                 
                 Divider()
                 
-                // Деталі
                 VStack(alignment: .leading, spacing: 12) {
                     DetailRow(title: "Car ID", value: booking.carId.uuidString.prefix(8).description)
                     DetailRow(title: "Brand/Model", value: "\(booking.car?.brand ?? "<brand>") \(booking.car?.model ?? "<model>")")

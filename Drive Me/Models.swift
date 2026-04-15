@@ -62,6 +62,7 @@ struct Booking: Identifiable, Codable, Hashable {
     var startDate: Date
     var endDate: Date
     var status: String
+    var rejectionReason: String?
     var cost: Int
     
     var car: Car?
@@ -75,6 +76,7 @@ struct Booking: Identifiable, Codable, Hashable {
         case status
         case cost
         case car = "cars"
+        case rejectionReason = "rejection_reason"
     }
 }
 

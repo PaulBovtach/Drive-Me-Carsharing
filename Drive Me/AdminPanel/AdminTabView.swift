@@ -10,7 +10,7 @@ import SwiftUI
 struct AdminTabView: View {
     var body: some View {
         TabView {
-            Text("New bookings")
+            AdminRequestsView()
                 .tabItem {
                     Image(systemName: "tray.full.fill")
                     Text("Requests")

@@ -66,6 +66,7 @@ struct Booking: Identifiable, Codable, Hashable {
     var cost: Int
     
     var car: Car?
+    var client: UserProfile?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -76,6 +77,7 @@ struct Booking: Identifiable, Codable, Hashable {
         case status
         case cost
         case car = "cars"
+        case client = "profiles"
         case rejectionReason = "rejection_reason"
     }
 }

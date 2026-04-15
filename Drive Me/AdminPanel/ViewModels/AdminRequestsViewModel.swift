@@ -8,26 +8,51 @@
 import Foundation
 import Combine
 import Supabase
+import SwiftUI
 
+
+enum BookingFilter: String, CaseIterable {
+    case all = "All"
+    case pending = "Pending"
+    case approved = "Approved"
+    case rejected = "Rejected"
+}
 
 @MainActor
 class AdminRequestsViewModel: ObservableObject {
     
     @Published var requests: [Booking] = []
     @Published var isLoading = false
+    @Published var selectedFilter: BookingFilter = .all
+    
+    var filteredRequests: [Booking] {
+        switch selectedFilter {
+        case .all:
+            return requests
+        case .pending, .approved, .rejected:
+            return requests.filter { $0.status.lowercased() == selectedFilter.rawValue.lowercased() }
+        }
+    }
     
     //MARK: Download all bookings
-    func fetchRequests() async {
+    func fetchRequests(isRefreshing: Bool = false) async {
         isLoading = true
         do{
+            
+            if isRefreshing {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+            }
+            
             let fetchedRequests: [Booking] = try await supabase
-                .from("bookings").select().order("created_at", ascending: false).execute().value
+                .from("bookings").select("*, cars(*), profiles(*)").order("created_at", ascending: false).execute().value
             
             //sort by status
-            self.requests = fetchedRequests.sorted{
-                if $0.status == "pending" && $1.status != "pending" {return true}
-                if $0.status != "pending" && $1.status == "pending" {return false}
-                return false
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                self.requests = fetchedRequests.sorted{
+                    if $0.status == "pending" && $1.status != "pending" {return true}
+                    if $0.status != "pending" && $1.status == "pending" {return false}
+                    return false
+                }
             }
             
         }catch {
@@ -36,6 +61,9 @@ class AdminRequestsViewModel: ObservableObject {
         isLoading = false
         
     }
+    
+    
+
     
     //MARK: Approve request
     
@@ -51,6 +79,8 @@ class AdminRequestsViewModel: ObservableObject {
                 requests[index].status = "approved"
                 requests[index].rejectionReason = nil
             }
+            
+        
             
         }catch{
             print("ADMIN. Failed to approve request: \(error.localizedDescription)")

@@ -16,19 +16,66 @@ struct AdminRequestsView: View {
     @State private var rejectionReason: String = ""
     @State private var showRejectAlert: Bool = false
     
+    init(){
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.white]
+    }
+    
     var body: some View {
         NavigationStack {
-            ZStack {
-                if viewModel.isLoading && viewModel.requests.isEmpty {
-                    ProgressView("Loading requests")
-                } else if viewModel.requests.isEmpty {
-                    Text("There is no requests yet")
-                        .foregroundColor(.gray)
-                } else {
-                    List {
-                        ForEach(viewModel.requests) { booking in
-                            RequestRowView(booking: booking)
-                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            ZStack{
+               
+                
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
+                        Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
+                        Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    
+                    Picker("Filter", selection: $viewModel.selectedFilter) {
+                        ForEach(BookingFilter.allCases, id: \.self) { filter in
+                            Text(filter.rawValue).tag(filter)
+                        }
+                    }
+                    .environment(\.colorScheme, .dark)
+                    .pickerStyle(.segmented)
+                    .padding(5)
+                    
+                    
+                    if viewModel.isLoading && viewModel.requests.isEmpty {
+                        ProgressView("Loading requests")
+                            .frame(maxHeight: .infinity)
+                    } else if viewModel.filteredRequests.isEmpty {
+                        VStack(spacing: 12) {
+                            Image(systemName: "tray.and.arrow.down")
+                                .font(.system(size: 50))
+                                .foregroundColor(.gray)
+                            Text("No \(viewModel.selectedFilter.rawValue.lowercased()) requests yet")
+                                .font(.headline)
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxHeight: .infinity)
+                        
+                    } else {
+                        //main content
+                        List {
+                            ForEach(viewModel.filteredRequests) { booking in
+                                
+                                NavigationLink {
+                                    Text("Request Detail View")
+                                } label: {
+                                    RequestRowView(booking: booking)
+                                    
+                                }
+                                
+                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
                                     if booking.status == "pending" {
                                         Button {
                                             Task { await viewModel.approveRequest(bookingId: booking.id) }
@@ -49,81 +96,49 @@ struct AdminRequestsView: View {
                                         .tint(.red)
                                     }
                                 }
+                                .listRowSeparator(.hidden)
+                            
+                                
+
+                                
+                                    
+                            }
                         }
-                    }
-                    .refreshable {
-                        await viewModel.fetchRequests()
+                        .environment(\.colorScheme, .dark)
+                        .listRowSpacing(20)
+                        .listStyle(.sidebar)
+                        .refreshable {
+                            
+                            await viewModel.fetchRequests()
+                        }
+                        .scrollContentBackground(.hidden)
                     }
                 }
-            }
-            .navigationTitle("Requests")
-            .task {
-                await viewModel.fetchRequests()
-            }
-            .alert("Reject Booking", isPresented: $showRejectAlert, presenting: bookingToReject) { booking in
-                TextField("Reason (optional)", text: $rejectionReason)
-                
-                Button("Cancel", role: .cancel) {
-                    rejectionReason = ""
+                .navigationTitle("Requests")
+                .task {
+                    await viewModel.fetchRequests()
                 }
-                
-                Button("Reject", role: .destructive) {
-                    Task {
-                        await viewModel.rejectRequest(bookingId: booking.id, reason: rejectionReason)
+                .alert("Reject Booking", isPresented: $showRejectAlert, presenting: bookingToReject) { booking in
+                    TextField("Reason (optional)", text: $rejectionReason)
+                    
+                    Button("Cancel", role: .cancel) {
                         rejectionReason = ""
                     }
+                    
+                    Button("Reject", role: .destructive) {
+                        Task {
+                            await viewModel.rejectRequest(bookingId: booking.id, reason: rejectionReason)
+                            rejectionReason = ""
+                        }
+                    }
+                } message: { booking in
+                    Text("Are you sure you want to reject this booking? You can provide an optional reason for the client.")
                 }
-            } message: { booking in
-                Text("Are you sure you want to reject this booking? You can provide an optional reason for the client.")
             }
         }
     }
 }
 
-// MARK: One request design
-struct RequestRowView: View {
-    let booking: Booking
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                //auto photo
-                Text("Booking ID: \(booking.id.uuidString.prefix(6))")
-                    .font(.headline)
-                
-                Spacer()
-                
-                Text(booking.status.uppercased())
-                    .font(.caption).bold()
-                    .padding(.horizontal, 8).padding(.vertical, 4)
-                    .background(statusColor(booking.status).opacity(0.2))
-                    .foregroundColor(statusColor(booking.status))
-                    .clipShape(Capsule())
-            }
-            
-            Text("Client ID: \(booking.clientId.uuidString.prefix(8))")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-            
-            if let reason = booking.rejectionReason, booking.status == "rejected" {
-                Text("Reason: \(reason)")
-                    .font(.footnote)
-                    .foregroundColor(.red)
-                    .italic()
-            }
-        }
-        .padding(.vertical, 4)
-    }
-    
-    private func statusColor(_ status: String) -> Color {
-        switch status.lowercased() {
-        case "pending": return .orange
-        case "approved": return .green
-        case "rejected": return .red
-        default: return .gray
-        }
-    }
-}
 #Preview {
     AdminRequestsView()
 }

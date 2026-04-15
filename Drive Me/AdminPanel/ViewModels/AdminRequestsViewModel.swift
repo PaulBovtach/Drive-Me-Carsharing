@@ -34,6 +34,8 @@ class AdminRequestsViewModel: ObservableObject {
         }
     }
     
+    
+    
     //MARK: Download all bookings
     func fetchRequests(isRefreshing: Bool = false) async {
         isLoading = true

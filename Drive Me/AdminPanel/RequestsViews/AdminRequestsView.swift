@@ -69,7 +69,7 @@ struct AdminRequestsView: View {
                             ForEach(viewModel.filteredRequests) { booking in
                                 
                                 NavigationLink {
-                                    Text("Request Detail View")
+                                    AdminRequestDetailView(booking: booking)
                                 } label: {
                                     RequestRowView(booking: booking)
                                     
@@ -98,10 +98,6 @@ struct AdminRequestsView: View {
                                 }
                                 .listRowSeparator(.hidden)
                             
-                                
-
-                                
-                                    
                             }
                         }
                         .environment(\.colorScheme, .dark)

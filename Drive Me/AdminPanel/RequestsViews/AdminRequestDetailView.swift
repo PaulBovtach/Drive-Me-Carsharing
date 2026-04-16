@@ -10,6 +10,11 @@ import SwiftUI
 struct AdminRequestDetailView: View {
     @StateObject private var vm: AdminRequestDetailViewModel
     
+    @State private var showRejectAlert = false
+    @State private var rejectionReason = ""
+    
+    @State private var showApproveAlert = false
+    
     init(booking: Booking) {
         _vm = StateObject(wrappedValue: AdminRequestDetailViewModel(booking: booking))
     }
@@ -34,13 +39,11 @@ struct AdminRequestDetailView: View {
                 
                 VStack(alignment: .leading, spacing: 20) {
                     
-                    // MARK: Клієнт
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Client Info")
                             .font(.title3).fontWeight(.bold).foregroundColor(.white)
                         
                         HStack {
-                            // Ліва частина: Аватарка (іконка) + Текст
                             HStack(spacing: 12) {
                                 Image(systemName: "person.circle.fill")
                                     .resizable()
@@ -62,7 +65,7 @@ struct AdminRequestDetailView: View {
                             
                             Spacer()
                             
-                            if let phone = vm.booking.client?.phoneNumber {
+                            if (vm.booking.client?.phoneNumber) != nil {
                                 let cleanPhone = vm.cleanedNumber()
                                 if let url = URL(string: "tel://\(cleanPhone)") {
                                     Link(destination: url) {
@@ -82,7 +85,6 @@ struct AdminRequestDetailView: View {
                         HStack {
                             Text("Booking Summary")
                                 .font(.title3).fontWeight(.bold).foregroundColor(.white)
-                            
                             Spacer()
                             
                             Text(vm.booking.status.uppercased())
@@ -117,14 +119,88 @@ struct AdminRequestDetailView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(5)
                 .glassEffect()
                 .padding(.horizontal)
                 
+                
+                if vm.booking.status == "pending"{
+                    HStack{
+                        Button{
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                showRejectAlert = true
+                            }
+                            
+                        }label: {
+                            Text("Reject")
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .foregroundStyle(.white)
+                        }
+                        .background(Color.red)
+                        .buttonStyle(.glass)
+                        .clipShape(.capsule)
+                        .environment(\.colorScheme, .dark)
+                        
+                        Button{
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                                showApproveAlert = true
+                            }
+                            
+                        }label: {
+                            
+                            Text("Approve")
+                                .fontWeight(.bold)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .foregroundStyle(.white)
+                            
+                            
+                        }
+                        .background(Color.green)
+                        .buttonStyle(.glass)
+                        .clipShape(.capsule)
+                        .environment(\.colorScheme, .dark)
+                    }
+                    .padding(.horizontal)
+                }
+                
+                
+                
+                
+                
             }
         }
-        .navigationTitle(vm.booking.car?.brand ?? "Details")
+        .navigationTitle("\(vm.booking.car?.brand ?? "No Brand") \(vm.booking.car?.model ?? "No model")")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Reject Request", isPresented: $showRejectAlert) {
+            TextField("Reason(optional)", text: $rejectionReason)
+            
+            Button("Cancel", role: .cancel) {
+                rejectionReason = ""
+            }
+            
+            Button("Reject", role: .destructive) {
+                Task {
+                    await vm.rejectBooking(reason: rejectionReason)
+                    rejectionReason = ""
+                }
+            }
+        }message: {
+            Text("Are you sure you want to reject this booking? You can provide an optional reason for the client.")
+        }
+        .alert("Approve Request", isPresented: $showApproveAlert){
+            Button("Cancel", role: .cancel){ }
+            Button("Approve", role: .confirm) {
+                Task{
+                    await vm.approveBooking()
+                }
+            }
+        }
+        
+        
+        
     }
     
     private func statusColor(_ status: String) -> Color {

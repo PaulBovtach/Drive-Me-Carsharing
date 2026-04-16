@@ -34,6 +34,9 @@ class AdminRequestDetailViewModel: ObservableObject {
         return booking.client?.phoneNumber?.filter { "0123456789+".contains($0) } ?? "0000"
     }
     
+    
+    
+    
     func approveBooking() async {
         isProcessing = true
         do {

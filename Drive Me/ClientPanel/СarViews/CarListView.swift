@@ -48,14 +48,17 @@ struct CarListView: View {
                         ScrollView {
                             LazyVStack(spacing: 20) {
                                 ForEach(viewModel.cars) { car in
-                                    NavigationLink(destination: CarDetailView(car: car)){
-                                        CarRowView(car: car)
-                                            .glassEffect()
+                                    if car.isAvailable {
+                                        NavigationLink(destination: CarDetailView(car: car)){
+                                            CarRowView(car: car)
+                                                .glassEffect()
+                                        }
+                                        .buttonStyle(BouncyGlassButtonStyle())
                                     }
-                                    .buttonStyle(BouncyGlassButtonStyle())
                                     
                                 }
                             }
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.cars)
                             .padding()
                         }
                     }
@@ -64,6 +67,9 @@ struct CarListView: View {
             .navigationTitle("Available cars")
             .task {
                 await viewModel.fetchCars()
+            }
+            .refreshable {
+                await viewModel.fetchCars(isRefreshing: true)
             }
         }
     }

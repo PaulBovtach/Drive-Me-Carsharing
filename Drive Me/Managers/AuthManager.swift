@@ -47,6 +47,7 @@ class AuthManager: ObservableObject {
             // Creating user in hidded table 'auth.users'
             let response = try await supabase.auth.signUp(email: email, password: password)
             
+            
             // Getting a user's id from table 'auth.users'
             let userId = response.user.id
             
@@ -57,9 +58,10 @@ class AuthManager: ObservableObject {
             try await supabase.from("profiles").insert(newProfile).execute()
             
             self.currentUserProfile = newProfile
+            self.showAuthView = false
             
             print("Successfully registered!")
-            self.showAuthView = false
+            
             
         } catch {
             print("Failed to register: \(error.localizedDescription)")
@@ -71,8 +73,8 @@ class AuthManager: ObservableObject {
     func logIn(email: String, password: String) async {
         do{
             try await supabase.auth.signIn(email: email, password: password)
-            print("Successfully logined!")
             self.showAuthView = false
+            print("Successfully logined!")
         }catch {
             print("Failed to log in: \(error.localizedDescription)")
         }
@@ -109,6 +111,16 @@ class AuthManager: ObservableObject {
             print("Successfully signed out!")
         } catch {
             print("Failed to sign out: \(error.localizedDescription)")
+        }
+    }
+    
+    func resetPassword(email: String) async {
+        do {
+            // Відправляє лист на вказаний email
+            try await supabase.auth.resetPasswordForEmail(email)
+            print("Password reset email sent to: \(email)")
+        } catch {
+            print("Error resetting password: \(error.localizedDescription)")
         }
     }
     

@@ -164,9 +164,16 @@ struct AccountView: View {
                         }
                     }
                 }
+                .navigationTitle("My account")
+                .navigationBarTitleDisplayMode(.inline)
                 .task {
                     if let usrID = authManager.currentUser?.id {
                         await bookingManager.fetchMyBookings(userId: usrID)
+                    }
+                }
+                .refreshable {
+                    if let usrID = authManager.currentUser?.id {
+                        await bookingManager.fetchMyBookings(userId: usrID, isRefreshing: true)
                     }
                 }
                 .onChange(of: authManager.currentUserProfile) { _, newProfile in

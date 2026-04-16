@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Supabase
+import SwiftUI
 
 @MainActor
 class BookingsManager: ObservableObject {
@@ -16,7 +17,12 @@ class BookingsManager: ObservableObject {
     @Published var bookedDatesForCar: [Date] = []
     
     //MARK: Fetch my bookings
-    func fetchMyBookings(userId: UUID) async {
+    func fetchMyBookings(userId: UUID, isRefreshing: Bool = false) async {
+        
+        if isRefreshing {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+        }
+        
         do{
             let bookings: [Booking] = try await supabase
                 .from("bookings")
@@ -26,7 +32,9 @@ class BookingsManager: ObservableObject {
                 .execute()
                 .value
             
-            self.myBookings = bookings
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                self.myBookings = bookings
+            }
             print("Successfully fetched my bookings")
             
         }catch {

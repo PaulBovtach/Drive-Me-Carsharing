@@ -19,69 +19,78 @@ struct CarGridCellView: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .empty:
-                            placeholderView
+                            ProgressView()
+                                .frame(height: 100)
+                                .frame(maxWidth: .infinity)
+                                .background(Color.gray.opacity(0.1))
+                            
                         case .success(let image):
                             image
                                 .resizable()
-                                .scaledToFill()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(height: 100)
+                                .frame(maxWidth: 150)
+                                .clipped()
+                                .cornerRadius(12)
                         case .failure:
-                            placeholderView
+                            Image(systemName: "car.fill")
+                                .font(.system(size: 25))
+                                .frame(height: 100)
+                                .frame(maxWidth: 150)
+                                .foregroundColor(.gray)
+                                .background(Color.gray.opacity(0.1))
+                                .cornerRadius(12)
                         @unknown default:
-                            placeholderView
+                            EmptyView()
                         }
                     }
-                    .frame(height: 120)
-                    .clipped()
-                } else {
-                    placeholderView
-                        .frame(height: 120)
+                    
+                }else {
+                    Image(systemName: "car.fill")
+                        .font(.system(size: 25))
+                        .frame(height: 100)
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.gray)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
                 }
-                
-                statusBadge
-                    .padding(8)
             }
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(car.brand ?? "None")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                
-                Text(car.model ?? "None")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .lineLimit(1)
+                HStack(alignment: .center){
+                    Text(car.brand ?? "None")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    Text(car.model ?? "None")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                }
                 
                 Text("\(car.pricePerDay ?? 100) $/day")
                     .font(.subheadline)
                     .fontWeight(.bold)
                     .foregroundColor(.green)
-                    .padding(.top, 4)
+                    .padding(.top, 3)
+                
+                Text(car.isAvailable ? "AVAILABLE" : "UNAVAILABLE")
+                    .font(.caption).bold()
+                    .padding(.horizontal, 8).padding(.vertical, 4)
+                    .background(car.isAvailable ? .green.opacity(0.2) : .red.opacity(0.2))
+                    .foregroundStyle(car.isAvailable ? .green : .red)
+                    .clipShape(Capsule())
             }
-            .padding(12)
-        }
-        .background(Color.black.opacity(0.3))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.1), lineWidth: 1)
-        )
-    }
-    
-    private var placeholderView: some View {
-        ZStack {
-            Color.gray.opacity(0.2)
-            Image(systemName: "car.fill")
-                .font(.largeTitle)
-                .foregroundColor(.gray.opacity(0.5))
+            .padding(4)
         }
     }
     
-    private var statusBadge: some View {
-        Circle()
-            .fill(car.isAvailable ? Color.green : Color.red)
-            .frame(width: 12, height: 12)
-            .overlay(Circle().stroke(Color.black.opacity(0.3), lineWidth: 2))
-            .shadow(color: car.isAvailable ? .green.opacity(0.5) : .red.opacity(0.5), radius: 3)
-    }
+    
+    
+    
 }
+
+
+
 

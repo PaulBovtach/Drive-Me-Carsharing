@@ -11,6 +11,11 @@ struct AutoparkListView: View {
     
     @StateObject private var vm = AutoparkListViewModel()
     
+    init(){
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.white]
+    }
+    
     var body: some View {
         let columns = [
             GridItem(.flexible(), spacing: 16),
@@ -19,6 +24,7 @@ struct AutoparkListView: View {
         
         NavigationStack{
             ZStack{
+                
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 50/255, green: 80/255, blue: 40/255),
@@ -33,7 +39,9 @@ struct AutoparkListView: View {
                 VStack(spacing: 0){
                     HStack(spacing: 16) {
                         DashboardCard(title: "Total Cars", value: "\(vm.totalCarsCount)", icon: "car.2.fill", color: .blue)
+                            .glassEffect()
                         DashboardCard(title: "Available", value: "\(vm.availableCarsCount)", icon: "checkmark.circle.fill", color: .green)
+                            .glassEffect()
                     }
                     .padding()
                     
@@ -43,6 +51,7 @@ struct AutoparkListView: View {
                             Text(filter.rawValue).tag(filter)
                         }
                     }
+                    .environment(\.colorScheme, .dark)
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
                     .padding(.bottom, 8)
@@ -51,7 +60,7 @@ struct AutoparkListView: View {
                 ScrollView {
                     if vm.filteredCars.isEmpty {
                         VStack(spacing: 12) {
-                            Image(systemName: "car.side.slash")
+                            Image(systemName: "car.fill")
                                 .font(.system(size: 50))
                                 .foregroundColor(.gray)
                             Text("No \(vm.selectedFilter.rawValue.lowercased()) cars")
@@ -63,17 +72,18 @@ struct AutoparkListView: View {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(vm.filteredCars) { car in
                                 NavigationLink {
-                                    Text("Car Details: \(car.brand ?? "none")")
+                                    AdminCarEditView(car: car)
                                 } label: {
                                     CarGridCellView(car: car)
+                                        .glassEffect()
                                 }
-                                .buttonStyle(.plain)
+                                
                             }
                         }
-                        .padding(16)
+                        .padding()
                     }
                 }
-                .navigationTitle("Fleet")
+                .navigationTitle("Autopark")
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
                         Button {
@@ -82,15 +92,17 @@ struct AutoparkListView: View {
                             Image(systemName: "plus")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
-                                .padding(8)
-                                .background(Color.green.opacity(0.8))
-                                .clipShape(Circle())
                         }
+                        .clipShape(Circle())
+                        .padding(8)
+                        
+                        
+                        
                     }
                 }
                 .preferredColorScheme(.dark)
                 .task { await vm.fetchCars() }
-                .refreshable { await vm.fetchCars() }
+                .refreshable { await vm.fetchCars(isRefreshing: true) }
             }
                 
             }
@@ -113,7 +125,8 @@ struct DashboardCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.white.opacity(0.8))
+                    .lineLimit(1)
                 Text(value)
                     .font(.title2)
                     .fontWeight(.bold)
@@ -124,9 +137,7 @@ struct DashboardCard: View {
                 .font(.title)
                 .foregroundColor(color.opacity(0.8))
         }
-        .padding()
-        .background(.ultraThinMaterial)
-        .cornerRadius(16)
+        
     }
 }
 

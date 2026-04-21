@@ -10,7 +10,6 @@ struct AdminCarEditView: View {
     
     init(car: Car) {
         _vm = StateObject(wrappedValue: AdminCarEditViewModel(car: car))
-       
     }
     
     var body: some View {
@@ -31,6 +30,7 @@ struct AdminCarEditView: View {
                     //carousel
                     ImageCardCarousel(car: vm.car)
                         .frame(height: 270)
+                        
                     
                     // form
                     VStack(alignment: .leading, spacing: 10) {

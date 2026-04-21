@@ -22,12 +22,12 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var fuelType: FuelType
     @Published var priceStr: String
     @Published var isAvailable: Bool
+    @Published var description: String
     
     @Published var isSaving = false
     
     init(car: Car) {
         self.car = car
-        // Ініціалізуємо поля поточними даними машини
         self.brand = car.brand ?? ""
         self.model = car.model ?? ""
         self.year = car.year ?? 2000
@@ -35,7 +35,9 @@ class AdminCarEditViewModel: ObservableObject {
         self.fuelType = FuelType(rawValue: car.fuelType ?? "") ?? .electro
         self.priceStr = String(car.pricePerDay ?? 0)
         self.isAvailable = car.isAvailable
+        self.description = car.description ?? ""
     }
+    
     
     
 }

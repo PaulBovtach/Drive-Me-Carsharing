@@ -1,4 +1,5 @@
 import SwiftUI
+import BetterSwiftUITextEditor
 
 struct AdminCarEditView: View {
     @StateObject private var vm: AdminCarEditViewModel
@@ -14,7 +15,7 @@ struct AdminCarEditView: View {
     
     var body: some View {
         ZStack {
-            // Фон
+
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(red: 50/255, green: 80/255, blue: 40/255),
@@ -27,11 +28,11 @@ struct AdminCarEditView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    // MARK: - Карусель фото
+                    //carousel
                     ImageCardCarousel(car: vm.car)
                         .frame(height: 270)
                     
-                    // MARK: - Форма вводу
+                    // form
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Vehicle Details")
                             .font(.title3.bold())
@@ -140,23 +141,35 @@ struct AdminCarEditView: View {
                         
                         Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
                         
+                        //description
+                        VStack(alignment: .leading, spacing: 4){
+                            Text("Description").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                            
+                            BetterEditor(text: $vm.description, placeholder: "Type car description", maxHeight: 100)
+                                .betterEditorScrollIndicators(.visible)
+                                
+                                .foregroundStyle(.black)
+                                .frame(minHeight: 100)
+                                .padding()
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(.rect(cornerRadius: 15))
+                                
+                        }
                         
-                        
+                        Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
                         
                         // availability toggle
                         Toggle(isOn: $vm.isAvailable) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Available for Rent").foregroundColor(.white).font(.headline)
-                                Text(vm.isAvailable ? "Visible to customers" : "Hidden / Maintenance")
+                                Text(vm.isAvailable ? "Visible to customers" : "Unavailable for rent")
                                     .font(.caption).foregroundColor(vm.isAvailable ? .green : .gray)
                             }
                         }
                         .tint(.green)
                     }
-                    .padding(20)
-                    .background(.ultraThinMaterial)
-                    .clipShape(.rect(cornerRadius: 24))
-                    .padding(.horizontal)
+                    .glassEffect()
+                    .padding()
                 }
                 .padding(.bottom, 30)
             }
@@ -185,5 +198,5 @@ struct AdminCarEditView: View {
 
 
 #Preview {
-    AdminCarEditView(car: Car(id: UUID(), brand: "BWM", model: "M5", year: 2012, consumption: 10.4, fuelType: "Diesel", transmissionType: "Automatic", isAvailable: true, imageUrls: [], pricePerDay: 100))
+    AdminCarEditView(car: Car(id: UUID(), brand: "BWM", model: "M5", year: 2012, consumption: 10.4, fuelType: "Diesel", transmissionType: "Automatic", isAvailable: true, imageUrls: [], pricePerDay: 100, description: "BMW stands for Bayerische Motoren Werke, which translates to Bavarian Motor Works in English. It is a renowned German manufacturer of luxury automobiles, motorcycles, and engines headquartered in Munich, known for its focus on performance, innovation, and premium engineering. "))
 }

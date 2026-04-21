@@ -1,20 +1,189 @@
-//
-//  AdminCarEditView.swift
-//  Drive Me
-//
-//  Created by Paul Bovtach on 17.04.2026.
-//
-
 import SwiftUI
 
 struct AdminCarEditView: View {
-    var car: Car
+    @StateObject private var vm: AdminCarEditViewModel
+    @Environment(\.dismiss) var dismiss
+    
+    let years = Array(1900...Calendar.current.component(.year, from: Date()))
+    
+    
+    init(car: Car) {
+        _vm = StateObject(wrappedValue: AdminCarEditViewModel(car: car))
+       
+    }
     
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            // Фон
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 50/255, green: 80/255, blue: 40/255),
+                    Color(red: 20/255, green: 40/255, blue: 15/255)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    // MARK: - Карусель фото
+                    ImageCardCarousel(car: vm.car)
+                        .frame(height: 270)
+                    
+                    // MARK: - Форма вводу
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Vehicle Details")
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
+                        
+                        //car brand
+                        VStack(alignment: .leading, spacing: 4){
+                            Text("Car Brand").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                            
+                            TextField("Brand", text: $vm.brand, prompt: Text("Brand Name").foregroundStyle(.gray.opacity(0.9)))
+                                .keyboardType(.default)
+                                .textInputAutocapitalization(.words)
+                                .autocorrectionDisabled(true)
+                                .padding(10)
+                                .background(Color.white.opacity(0.8))
+                                .foregroundColor(.black)
+                                .clipShape(.rect(cornerRadius: 15))
+                        }
+                        
+                        //car model
+                        VStack(alignment: .leading, spacing: 4){
+                            Text("Car Model").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                            
+                            TextField("Model", text: $vm.model, prompt: Text("Model Name").foregroundStyle(.gray.opacity(0.9)))
+                                .keyboardType(.default)
+                                .textInputAutocapitalization(.words)
+                                .autocorrectionDisabled(true)
+                                .padding(10)
+                                .background(Color.white.opacity(0.8))
+                                .foregroundColor(.black)
+                                .clipShape(.rect(cornerRadius: 15))
+                        }
+                        
+                        //price and car year
+                        HStack(alignment: .center, spacing: 10){
+                            //price
+                            VStack(alignment: .leading, spacing: 4){
+                                Text("Price per day").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                                HStack {
+                                    TextField("Price", text: $vm.priceStr)
+                                        .keyboardType(.numberPad)
+                                    
+                                    Text("$")
+                                        .foregroundColor(.gray)
+                                }
+                                .foregroundStyle(.black)
+                                .padding(10)
+                                
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(.rect(cornerRadius: 15))
+                            }
+                            //car year
+                            VStack (alignment: .leading, spacing: 4){
+                                Text("Car Year").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                                
+                                Picker("Car Year", selection: $vm.year) {
+                                    ForEach(years, id: \.self){ year in
+                                        Text(String(year))
+                                            .tag(year)
+                                    }
+                                }
+                                .padding(4)
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(.rect(cornerRadius: 15))
+                                .tint(Color.black)
+                                
+                            }
+                        }
+                        
+                        
+                        //consumption and fuel type
+                        HStack(alignment: .center, spacing: 10){
+                            //consumption
+                            VStack(alignment: .leading, spacing: 4){
+                                Text("Consumption").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                                HStack {
+                                    TextField("Consumption", text: $vm.consumption)
+                                        .keyboardType(.decimalPad)
+                                    
+                                    Text("L/100km")
+                                        .foregroundColor(.gray)
+                                }
+                                .foregroundStyle(.black)
+                                .padding(10)
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(.rect(cornerRadius: 15))
+                            }
+                            
+                            //fuel type
+                            VStack(alignment: .leading, spacing: 4){
+                                Text("Fuel Type").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                                
+                                Picker("Fuel Type", selection: $vm.fuelType) {
+                                    ForEach(FuelType.allCases, id: \.self) { type in
+                                        Text(type.rawValue)
+                                            .tag(type)
+                                    }
+                                }
+                                .padding(4)
+                                .background(Color.white.opacity(0.8))
+                                .clipShape(.rect(cornerRadius: 15))
+                                .tint(Color.black)
+                            }
+                        }
+                          
+                        
+                        Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
+                        
+                        
+                        
+                        
+                        // availability toggle
+                        Toggle(isOn: $vm.isAvailable) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Available for Rent").foregroundColor(.white).font(.headline)
+                                Text(vm.isAvailable ? "Visible to customers" : "Hidden / Maintenance")
+                                    .font(.caption).foregroundColor(vm.isAvailable ? .green : .gray)
+                            }
+                        }
+                        .tint(.green)
+                    }
+                    .padding(20)
+                    .background(.ultraThinMaterial)
+                    .clipShape(.rect(cornerRadius: 24))
+                    .padding(.horizontal)
+                }
+                .padding(.bottom, 30)
+            }
+            
+            // indicator while saving
+            if vm.isSaving {
+                Color.black.opacity(0.3).ignoresSafeArea()
+                ProgressView().tint(.white).scaleEffect(1.5)
+            }
+        }
+        .navigationTitle("Edit Vehicle")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    print("Saving...")
+                }
+                .fontWeight(.bold)
+                .foregroundColor(.green)
+                .disabled(vm.isSaving)
+            }
+        }
     }
+    
 }
 
+
 #Preview {
-    AdminCarEditView(car: Car(id: UUID(), isAvailable: true))
+    AdminCarEditView(car: Car(id: UUID(), brand: "BWM", model: "M5", year: 2012, consumption: 10.4, fuelType: "Diesel", transmissionType: "Automatic", isAvailable: true, imageUrls: [], pricePerDay: 100))
 }

@@ -32,6 +32,8 @@ struct CarUpdateData: Codable {
 class AdminCarEditViewModel: ObservableObject {
     let car: Car
     
+    let years = Array(1900...Calendar.current.component(.year, from: Date()))
+    
     @Published var brand: String
     @Published var model: String
     @Published var year: Int
@@ -43,6 +45,7 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var description: String
     
     @Published var isSaving = false
+    
     
     init(car: Car) {
         self.car = car

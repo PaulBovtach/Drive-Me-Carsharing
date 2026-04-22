@@ -5,8 +5,7 @@ struct AdminCarEditView: View {
     @StateObject private var vm: AdminCarEditViewModel
     @Environment(\.dismiss) var dismiss
     
-    let years = Array(1900...Calendar.current.component(.year, from: Date()))
-    
+    @State private var showPhotoEditor = false
     
     init(car: Car) {
         _vm = StateObject(wrappedValue: AdminCarEditViewModel(car: car))
@@ -28,8 +27,28 @@ struct AdminCarEditView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     //carousel
-                    ImageCardCarousel(car: vm.car)
-                        .frame(height: 270)
+                    
+                    ZStack(alignment: .topTrailing){
+                        ImageCardCarousel(car: vm.car)
+                            .frame(height: 270)
+                        
+                        VStack{
+                            Button{
+                                showPhotoEditor = true
+                            }label: {
+                                Image(systemName: "pencil.circle")
+                                    .font(.system(size: 32, weight: .medium))
+                                    
+                            }
+                            .background(Color.green)
+                            .buttonStyle(.glass)
+                            .clipShape(.capsule)
+                            .environment(\.colorScheme, .dark)
+                        }
+                        .padding(.trailing, 15)
+                    }
+                    
+                    
                         
                     
                     // form
@@ -89,7 +108,7 @@ struct AdminCarEditView: View {
                                 Text("Car Year").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
                                 
                                 Picker("Car Year", selection: $vm.year) {
-                                    ForEach(years, id: \.self){ year in
+                                    ForEach(vm.years, id: \.self){ year in
                                         Text(String(year))
                                             .tag(year)
                                     }
@@ -195,6 +214,9 @@ struct AdminCarEditView: View {
                 Color.black.opacity(0.3).ignoresSafeArea()
                 ProgressView().tint(.white).scaleEffect(1.5)
             }
+        }
+        .sheet(isPresented: $showPhotoEditor){
+            AdminCarPhotoEditorView(vm: vm)
         }
         .navigationTitle("Edit Vehicle")
         .navigationBarTitleDisplayMode(.inline)

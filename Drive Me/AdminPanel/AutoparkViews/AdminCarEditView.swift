@@ -137,6 +137,22 @@ struct AdminCarEditView: View {
                                 .tint(Color.black)
                             }
                         }
+                        
+                        VStack (alignment: .leading, spacing: 4){
+                            Text("Transmission Type").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                            
+                            Picker("Transmission", selection: $vm.transmissionType) {
+                                ForEach(TransmissionType.allCases, id: \.self){ type in
+                                    Text(String(type.rawValue))
+                                        .tag(type)
+                                }
+                            }
+                            .padding(4)
+                            .background(Color.white.opacity(0.8))
+                            .clipShape(.rect(cornerRadius: 15))
+                            .tint(Color.black)
+                            
+                        }
                           
                         
                         Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
@@ -185,7 +201,9 @@ struct AdminCarEditView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    print("Saving...")
+                    Task{
+                        await vm.updateFields()
+                    }
                 }
                 .fontWeight(.bold)
                 .foregroundColor(.green)

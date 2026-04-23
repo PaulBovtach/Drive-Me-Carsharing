@@ -116,8 +116,13 @@ class AdminCarEditViewModel: ObservableObject {
     
     //MARK: Photo Editor
     func handlePhotoSelection(){
+        
+        let itemsToProcess = selectedPhotoItems
+        guard !itemsToProcess.isEmpty else { return }
+        self.selectedPhotoItems.removeAll()
+        
         Task{
-            for item in selectedPhotoItems {
+            for item in itemsToProcess {
                 do{
                     if let data = try await item.loadTransferable(type: Data.self),
                        let uiImage = UIImage(data: data){
@@ -128,7 +133,6 @@ class AdminCarEditViewModel: ObservableObject {
                     print("ADMIN. Failed to handle new photos from gallery: \(error.localizedDescription)")
                 }
             }
-            self.selectedPhotoItems.removeAll()
         }
     }
     

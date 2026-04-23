@@ -7,9 +7,11 @@ struct AdminCarEditView: View {
     
     @State private var showPhotoEditor = false
     
+    
     init(car: Car) {
         _vm = StateObject(wrappedValue: AdminCarEditViewModel(car: car))
     }
+    
     
     var body: some View {
         ZStack {

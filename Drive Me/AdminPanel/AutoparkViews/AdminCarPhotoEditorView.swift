@@ -11,6 +11,7 @@ import PhotosUI
 struct AdminCarPhotoEditorView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var vm: AdminCarEditViewModel
+    @State private var showSaveAlert = false
     
     
     let columns = [
@@ -25,8 +26,6 @@ struct AdminCarPhotoEditorView: View {
                 
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
-                        
-                        
                         ForEach(vm.existingImagesUrls, id: \.self) { urlString in
                             ZStack(alignment: .topTrailing) {
                                 
@@ -37,27 +36,31 @@ struct AdminCarPhotoEditorView: View {
                                             Color.gray.opacity(0.2)
                                             ProgressView().tint(.white)
                                         }
+                                        .frame(width: 170, height: 100)
                                     case .success(let image):
                                         image
                                             .resizable()
-                                            .scaledToFit()
+                                            .scaledToFill()
+                                            .frame(width: 170, height: 100)
+                                        
                                     case .failure:
                                         ZStack {
                                             Color.gray.opacity(0.3)
                                             Image(systemName: "photo.badge.exclamationmark")
                                                 .foregroundColor(.white.opacity(0.5))
                                         }
+                                        .frame(width: 170, height: 100)
                                     @unknown default:
                                         EmptyView()
                                     }
                                 }
-                                .frame(height: 100)
-                                
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                                .clipped()
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.green, lineWidth: 2))
                                 
                                 Button {
-                                    vm.removeExistingPhoto(url: urlString)
+                                    withAnimation {
+                                        vm.removeExistingPhoto(url: urlString)
+                                    }
                                 } label: {
                                     Image(systemName: "minus.circle.fill")
                                         .foregroundStyle(.white, .red)
@@ -71,12 +74,14 @@ struct AdminCarPhotoEditorView: View {
                                 Image(uiImage: localPhoto.image)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(height: 150)
+                                    .frame(width: 170, height: 100)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.green, lineWidth: 2))
                                 
                                 Button {
-                                    vm.removeLocalPhoto(id: localPhoto.id)
+                                    withAnimation {
+                                        vm.removeLocalPhoto(id: localPhoto.id)
+                                    }
                                 } label: {
                                     Image(systemName: "minus.circle.fill")
                                         .foregroundStyle(.white, .red)
@@ -107,16 +112,35 @@ struct AdminCarPhotoEditorView: View {
                     }
                     .padding()
                 }
+                
+                if vm.isSaving {
+                    Color.black.opacity(0.3).ignoresSafeArea()
+                    ProgressView().tint(.white).scaleEffect(1.5)
+                }
             }
             .navigationTitle("Manage Photos")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                        .fontWeight(.bold)
-                        .foregroundColor(.green)
+                    Button("Save") {
+                        showSaveAlert = true
+                    }
+                    .fontWeight(.bold)
+                    .foregroundColor(.green)
+                    .disabled(vm.isSaving)
                 }
             }
+            .alert("Do you want to save changes?", isPresented: $showSaveAlert) {
+                Button("Cancel", role: .cancel){}
+                Button("Save", role: .confirm){
+                    Task{
+                        await vm.uploadAndCompressPhotos()
+                        await vm.updatePhotosInDB()
+                        dismiss()
+                    }
+                }
+            }
+
         }
     }
 }

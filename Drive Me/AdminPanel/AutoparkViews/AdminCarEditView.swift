@@ -31,7 +31,7 @@ struct AdminCarEditView: View {
                     //carousel
                     
                     ZStack(alignment: .topTrailing){
-                        ImageCardCarousel(car: vm.displayCar)
+                        ImageCardCarousel(car: vm.car)
                         
                         VStack{
                             Button{

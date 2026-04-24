@@ -31,8 +31,7 @@ struct AdminCarEditView: View {
                     //carousel
                     
                     ZStack(alignment: .topTrailing){
-                        ImageCardCarousel(car: vm.car)
-                            .frame(height: 270)
+                        ImageCardCarousel(car: vm.displayCar)
                         
                         VStack{
                             Button{
@@ -219,7 +218,9 @@ struct AdminCarEditView: View {
         }
         .sheet(isPresented: $showPhotoEditor){
             AdminCarPhotoEditorView(vm: vm)
+                
         }
+        
         .navigationTitle("Edit Vehicle")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

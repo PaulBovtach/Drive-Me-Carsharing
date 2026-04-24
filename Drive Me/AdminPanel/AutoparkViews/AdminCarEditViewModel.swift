@@ -37,7 +37,7 @@ struct LocalPhoto: Identifiable {
 
 @MainActor
 class AdminCarEditViewModel: ObservableObject {
-    let car: Car
+    @Published var car: Car
     
     let years = Array(1900...Calendar.current.component(.year, from: Date()))
     
@@ -53,7 +53,9 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var description: String
     
     //buffer of photos
-    @Published var existingImagesUrls: [String]
+    @Published var existingImagesUrls: [String] {
+        didSet { withAnimation{ car.imageUrls = existingImagesUrls } }
+    }
     @Published var newPhotosToUpload: [LocalPhoto] = []
     @Published var selectedPhotoItems: [PhotosPickerItem] = [] {
         didSet { handlePhotoSelection() }

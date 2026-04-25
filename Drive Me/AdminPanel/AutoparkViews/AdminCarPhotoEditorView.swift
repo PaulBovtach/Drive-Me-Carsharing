@@ -120,27 +120,50 @@ struct AdminCarPhotoEditorView: View {
             }
             .navigationTitle("Manage Photos")
             .navigationBarTitleDisplayMode(.inline)
+            .interactiveDismissDisabled()
+            
             .toolbar {
+                
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") {
+                        showSaveAlert = true
+                    }
+                    .foregroundColor(.white)
+                }
+                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        showSaveAlert = true
+                        Task {
+                            await vm.uploadAndCompressPhotos()
+                            await vm.updatePhotosInDB()
+                            dismiss()
+                        }
                     }
                     .fontWeight(.bold)
                     .foregroundColor(.green)
                     .disabled(vm.isSaving)
                 }
             }
-            .alert("Do you want to save changes?", isPresented: $showSaveAlert) {
-                Button("Cancel", role: .cancel){}
-                Button("Save", role: .confirm){
-                    Task{
+            .alert("Unsaved Changes", isPresented: $showSaveAlert) {
+                Button("Save") {
+                    Task {
                         await vm.uploadAndCompressPhotos()
                         await vm.updatePhotosInDB()
                         dismiss()
                     }
                 }
+                
+                Button("Discard", role: .destructive) {
+                    vm.discardPhotoChanges()
+                    dismiss()
+                }
+                
+                
+                Button("Cancel", role: .cancel) {}
+            }message: {
+                Text("Do you want to save your changes before leaving?")
             }
-
+            
         }
     }
 }

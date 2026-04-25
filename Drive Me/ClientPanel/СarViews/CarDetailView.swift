@@ -176,6 +176,12 @@ struct ImageCardCarousel: View {
                 .glassEffect()
             }
                             .frame(height: 300)
+                            .id(imageUrls)
+                            .onChange(of: imageUrls) {
+                                withAnimation {
+                                    currentIndex = 0
+                                }
+                            }
             
         } else {
             

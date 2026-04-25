@@ -53,9 +53,7 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var description: String
     
     //buffer of photos
-    @Published var existingImagesUrls: [String] {
-        didSet { withAnimation{ car.imageUrls = existingImagesUrls } }
-    }
+    @Published var existingImagesUrls: [String]
     @Published var newPhotosToUpload: [LocalPhoto] = []
     @Published var selectedPhotoItems: [PhotosPickerItem] = [] {
         didSet { handlePhotoSelection() }
@@ -146,6 +144,13 @@ class AdminCarEditViewModel: ObservableObject {
         newPhotosToUpload.removeAll() {$0.id == id}
     }
     
+    func discardPhotoChanges() {
+        self.existingImagesUrls = self.car.imageUrls ?? []
+        
+        self.newPhotosToUpload.removeAll()
+        self.selectedPhotoItems.removeAll()
+    }
+    
     
     //MARK: Compressing and Uploading photos
     func uploadAndCompressPhotos() async {
@@ -178,6 +183,7 @@ class AdminCarEditViewModel: ObservableObject {
                     .getPublicURL(path: filename)
                 
                 newlyUpdatedUrls.append(publicUrl.absoluteString)
+                
             }catch{
                 print("Failed to upload photo \(filename): \(error.localizedDescription)")
             }
@@ -200,11 +206,15 @@ class AdminCarEditViewModel: ObservableObject {
                 .update(["image_urls": existingImagesUrls])
                 .eq("id", value: car.id)
                 .execute()
+            
+            car.imageUrls = existingImagesUrls
             print("ADMIN. Image URLs successfully synced with DB!")
         } catch {
             print("ADMIN. Failed to sync image URLs: \(error.localizedDescription)")
         }
     }
+    
+    
     
     
     

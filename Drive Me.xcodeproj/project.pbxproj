@@ -14,6 +14,7 @@
 		579654FE2F71FDB70035665B /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 579654FD2F71FDB70035665B /* Storage */; };
 		579655002F71FDB70035665B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 579654FF2F71FDB70035665B /* Supabase */; };
 		579655172F72FBBC0035665B /* SwiftUICarousel in Frameworks */ = {isa = PBXBuildFile; productRef = 579655162F72FBBC0035665B /* SwiftUICarousel */; };
+		57B84BD92F97C185004A77D3 /* BetterSwiftUITextEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 57B84BD82F97C185004A77D3 /* BetterSwiftUITextEditor */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,7 @@
 				579655172F72FBBC0035665B /* SwiftUICarousel in Frameworks */,
 				579654F82F71FDB70035665B /* Functions in Frameworks */,
 				579655002F71FDB70035665B /* Supabase in Frameworks */,
+				57B84BD92F97C185004A77D3 /* BetterSwiftUITextEditor in Frameworks */,
 				579654F62F71FDB70035665B /* Auth in Frameworks */,
 				579654FE2F71FDB70035665B /* Storage in Frameworks */,
 				579654FC2F71FDB70035665B /* Realtime in Frameworks */,
@@ -89,6 +91,7 @@
 				579654FD2F71FDB70035665B /* Storage */,
 				579654FF2F71FDB70035665B /* Supabase */,
 				579655162F72FBBC0035665B /* SwiftUICarousel */,
+				57B84BD82F97C185004A77D3 /* BetterSwiftUITextEditor */,
 			);
 			productName = "Drive Me";
 			productReference = 579654E62F71FC5C0035665B /* Drive Me.app */;
@@ -121,6 +124,7 @@
 			packageReferences = (
 				579654F42F71FDB70035665B /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				579655152F72FBBC0035665B /* XCRemoteSwiftPackageReference "SwiftUICarousel" */,
+				57B84BD72F97C185004A77D3 /* XCRemoteSwiftPackageReference "better-swiftui-texteditor" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 579654E72F71FC5C0035665B /* Products */;
@@ -382,6 +386,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		57B84BD72F97C185004A77D3 /* XCRemoteSwiftPackageReference "better-swiftui-texteditor" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/matsveil/better-swiftui-texteditor";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -419,6 +431,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 579655152F72FBBC0035665B /* XCRemoteSwiftPackageReference "SwiftUICarousel" */;
 			productName = SwiftUICarousel;
+		};
+		57B84BD82F97C185004A77D3 /* BetterSwiftUITextEditor */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 57B84BD72F97C185004A77D3 /* XCRemoteSwiftPackageReference "better-swiftui-texteditor" */;
+			productName = BetterSwiftUITextEditor;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -10,31 +10,36 @@ import SwiftUI
 struct AdminTabView: View {
     var body: some View {
         TabView {
-            AdminRequestsView()
-                .tabItem {
-                    Image(systemName: "tray.full.fill")
-                    Text("Requests")
-                }
+            
+            Tab{
+                AdminRequestsView()
+            }label: {
+                Image(systemName: "tray.full.fill")
+                Text("Requests")
+            }
+            
+            Tab{
+                AutoparkListView()
+            }label: {
+                Image(systemName: "car.fill")
+                Text("Autopark")
+            }
+            
+            Tab{
+                Text("Map redactor")
+            }label: {
+                Image(systemName: "map.fill")
+                Text("Map Admin")
+            }
             
 
-            Text("Autopark")
-                .tabItem {
-                    Image(systemName: "car.fill")
-                    Text("Fleet")
-                }
+            Tab{
+                AdminProfileView()
+            }label: {
+                Image(systemName: "person.crop.circle.fill")
+                Text("Profile")
+            }
             
-            Text("Map redactor")
-                .tabItem {
-                    Image(systemName: "map.fill")
-                    Text("Map Admin")
-                }
-            
-
-            AdminProfileView()
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("Profile")
-                }
         }
         .tint(.white)
     }

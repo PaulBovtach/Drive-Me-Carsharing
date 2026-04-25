@@ -135,6 +135,7 @@ struct AdminCarPhotoEditorView: View {
                     Button("Save") {
                         Task {
                             await vm.uploadAndCompressPhotos()
+                            await vm.deletePhotosFromBucket()
                             await vm.updatePhotosInDB()
                             dismiss()
                         }
@@ -148,6 +149,7 @@ struct AdminCarPhotoEditorView: View {
                 Button("Save") {
                     Task {
                         await vm.uploadAndCompressPhotos()
+                        await vm.deletePhotosFromBucket()
                         await vm.updatePhotosInDB()
                         dismiss()
                     }

@@ -58,6 +58,7 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var selectedPhotoItems: [PhotosPickerItem] = [] {
         didSet { handlePhotoSelection() }
     }
+    @Published var photosToDeleteFromBucket: [String] = []
     
     @Published var isSaving = false
     
@@ -138,6 +139,8 @@ class AdminCarEditViewModel: ObservableObject {
     
     func removeExistingPhoto(url: String) {
         existingImagesUrls.removeAll() {$0 == url}
+        photosToDeleteFromBucket.append(url)
+        
     }
     
     func removeLocalPhoto(id: UUID) {
@@ -146,9 +149,34 @@ class AdminCarEditViewModel: ObservableObject {
     
     func discardPhotoChanges() {
         self.existingImagesUrls = self.car.imageUrls ?? []
-        
         self.newPhotosToUpload.removeAll()
         self.selectedPhotoItems.removeAll()
+        self.photosToDeleteFromBucket.removeAll()
+    }
+    
+    func deletePhotosFromBucket() async {
+        guard !photosToDeleteFromBucket.isEmpty else { return }
+        
+        //trimming the "car_images/"
+        let pathsToDelete = photosToDeleteFromBucket.compactMap { urlString -> String? in
+            guard let range = urlString.range(of: "car_images/") else { return nil }
+            return String(urlString[range.upperBound...])
+        }
+        
+        guard !pathsToDelete.isEmpty else { return }
+        
+        do{
+            try await supabase
+                .storage
+                .from("car_images")
+                .remove(paths: pathsToDelete)
+            
+            print("ADMIN. Successfully deleted \(pathsToDelete.count) photos from bucket.")
+            self.photosToDeleteFromBucket.removeAll()
+        }catch {
+            print("ADMIN. Failed to delete photos from bucket: \(error.localizedDescription)")
+        }
+        
     }
     
     
@@ -213,6 +241,8 @@ class AdminCarEditViewModel: ObservableObject {
             print("ADMIN. Failed to sync image URLs: \(error.localizedDescription)")
         }
     }
+    
+    
     
     
     

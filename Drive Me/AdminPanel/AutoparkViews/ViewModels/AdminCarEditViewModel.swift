@@ -85,7 +85,7 @@ class AdminCarEditViewModel: ObservableObject {
         guard validateData() else { return }
         
         
-        let parsedConsumption = Double(consumption) ?? 0.0
+        let parsedConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
         let parsedPrice = Int(priceStr) ?? 0
         
         isSaving = true

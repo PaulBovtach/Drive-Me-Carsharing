@@ -28,8 +28,6 @@ struct AdminCarEditView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    //carousel
-                    
                     ZStack(alignment: .topTrailing){
                         ImageCardCarousel(car: vm.car)
                         

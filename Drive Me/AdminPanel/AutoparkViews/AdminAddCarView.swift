@@ -79,6 +79,13 @@ struct AdminAddCarView: View {
                                 .font(.title3.bold())
                                 .foregroundColor(.white)
                             
+                            if !vm.errorMessage.isEmpty {
+                                Text(vm.errorMessage)
+                                    .font(.footnote)
+                                    .foregroundColor(.red)
+                                    .transition(.opacity)
+                            }
+                            
                             //car brand
                             VStack(alignment: .leading, spacing: 4){
                                 Text("Car Brand").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
@@ -249,7 +256,6 @@ struct AdminAddCarView: View {
                     }
                     .fontWeight(.bold)
                     .foregroundColor(.green)
-                    .disabled(vm.isSaving || vm.brand.isEmpty || vm.model.isEmpty)
                 }
             }
             .alert("Unsaved Changes", isPresented: $showCancelAlert) {

@@ -32,6 +32,7 @@ class AdminAddCarViewModel: ObservableObject {
     }
     
     @Published var isSaving = false
+    @Published var errorMessage = ""
     
     var hasChanges: Bool {
         return !brand.isEmpty ||
@@ -86,13 +87,11 @@ class AdminAddCarViewModel: ObservableObject {
     
     func saveNewCar() async -> Bool {
         
-        guard !brand.isEmpty, !model.isEmpty, !priceStr.isEmpty else {
-            print("ADMIN. Fill required fields!")
-            return false
-        }
-        
+        withAnimation { self.errorMessage = "" }
+        guard validateData() else { return false }
         isSaving = true
         defer { isSaving = false }
+        
         
         let newCarId = UUID()
         var uploadedUrls: [String] = []
@@ -149,6 +148,31 @@ class AdminAddCarViewModel: ObservableObject {
             return false
         }
     }
+    
+    // validation
+    func validateData() -> Bool {
+            if brand.trimmingCharacters(in: .whitespaces).isEmpty ||
+               model.trimmingCharacters(in: .whitespaces).isEmpty ||
+               priceStr.trimmingCharacters(in: .whitespaces).isEmpty ||
+               consumption.trimmingCharacters(in: .whitespaces).isEmpty {
+                
+                withAnimation { errorMessage = "Please fill in all fields before publishing." }
+                return false
+            }
+            
+            guard let _ = Int(priceStr) else {
+                withAnimation { errorMessage = "Price must contain only numbers." }
+                return false
+            }
+            
+            let formattedConsumption = consumption.replacingOccurrences(of: ",", with: ".")
+            guard let _ = Double(formattedConsumption) else {
+                withAnimation { errorMessage = "Consumption must be a valid number." }
+                return false
+            }
+            
+            return true
+        }
     
     
     

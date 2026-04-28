@@ -61,6 +61,37 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var photosToDeleteFromBucket: [String] = []
     
     @Published var isSaving = false
+    @Published var errorMessage = ""
+    
+    var hasFieldChanges: Bool {
+        let currentConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
+        let originalConsumption = car.consumption ?? 0.0
+        //consumption bool
+        let consumptionChanged = currentConsumption != originalConsumption
+        
+        let currentPrice = Int(priceStr) ?? 0
+        let originalPrice = car.pricePerDay ?? 0
+        //price bool
+        let priceChanged = currentPrice != originalPrice
+        
+        return brand != (car.brand ?? "") ||
+        model != (car.model ?? "") ||
+        year != (car.year ?? 2000) ||
+        fuelType.rawValue != (car.fuelType ?? "") ||
+        transmissionType.rawValue != (car.transmissionType ?? "") ||
+        isAvailable != car.isAvailable ||
+        description != (car.description ?? "") ||
+        consumptionChanged ||
+        priceChanged
+    }
+    
+    var hasPhotoChanges: Bool {
+        let addedNewPhotos = !newPhotosToUpload.isEmpty
+        let removedExistingPhotos = existingImagesUrls != (car.imageUrls ?? [])
+        let hasPhotosToDelete = !photosToDeleteFromBucket.isEmpty
+        
+        return addedNewPhotos || removedExistingPhotos || hasPhotosToDelete
+    }
     
     
     init(car: Car) {
@@ -78,41 +109,47 @@ class AdminCarEditViewModel: ObservableObject {
         self.existingImagesUrls = car.imageUrls ?? []
     }
     
-    func updateFields() async {
+    func updateFields() async -> Bool {
         
-            let parsedConsumption = Double(consumption) ?? 0.0
-            let parsedPrice = Int(priceStr) ?? 0
-            
-            isSaving = true
-            
-            let dataToUpdate = CarUpdateData(
-                brand: brand,
-                model: model,
-                year: year,
-                consumption: parsedConsumption,
-                fuel_type: fuelType.rawValue,
-                transmission_type: transmissionType.rawValue,
-                price_per_day: parsedPrice,
-                is_available: isAvailable,
-                description: description
-            )
-            
-            do {
-                
-                try await supabase
-                    .from("cars")
-                    .update(dataToUpdate)
-                    .eq("id", value: car.id)
-                    .execute()
-                
-                print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
-                
-            } catch {
-                print("Failed to update car's info: \(error.localizedDescription)")
-            }
+        withAnimation { self.errorMessage = "" }
+        guard validateData() else { return false }
         
+        
+        let parsedConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
+        let parsedPrice = Int(priceStr) ?? 0
+        
+        isSaving = true
+        defer{
             isSaving = false
         }
+        
+        let dataToUpdate = CarUpdateData(
+            brand: brand,
+            model: model,
+            year: year,
+            consumption: parsedConsumption,
+            fuel_type: fuelType.rawValue,
+            transmission_type: transmissionType.rawValue,
+            price_per_day: parsedPrice,
+            is_available: isAvailable,
+            description: description
+        )
+        
+        do {
+            try await supabase
+                .from("cars")
+                .update(dataToUpdate)
+                .eq("id", value: car.id)
+                .execute()
+            
+            print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
+            return true
+        } catch {
+            print("Failed to update car's info: \(error.localizedDescription)")
+            return false
+        }
+        
+    }
     
     
     //MARK: Photo Editor
@@ -240,6 +277,31 @@ class AdminCarEditViewModel: ObservableObject {
         } catch {
             print("ADMIN. Failed to sync image URLs: \(error.localizedDescription)")
         }
+    }
+    
+    //validation
+    func validateData() -> Bool {
+        if brand.trimmingCharacters(in: .whitespaces).isEmpty ||
+            model.trimmingCharacters(in: .whitespaces).isEmpty ||
+            priceStr.trimmingCharacters(in: .whitespaces).isEmpty ||
+            consumption.trimmingCharacters(in: .whitespaces).isEmpty {
+            
+            withAnimation { errorMessage = "Please fill in all fields before publishing." }
+            return false
+        }
+        
+        guard let _ = Int(priceStr) else {
+            withAnimation { errorMessage = "Price must contain only numbers." }
+            return false
+        }
+        
+        let formattedConsumption = consumption.replacingOccurrences(of: ",", with: ".")
+        guard let _ = Double(formattedConsumption) else {
+            withAnimation { errorMessage = "Consumption must be a valid number." }
+            return false
+        }
+        
+        return true
     }
     
     

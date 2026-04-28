@@ -11,6 +11,7 @@ import PhotosUI
 struct AdminCarPhotoEditorView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var vm: AdminCarEditViewModel
+    @State private var showCancelAlert = false
     @State private var showSaveAlert = false
     
     
@@ -125,18 +126,21 @@ struct AdminCarPhotoEditorView: View {
             .toolbar {
                 
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
-                        showSaveAlert = true
+                    Button("Cancel") {
+                        if vm.hasPhotoChanges{
+                            showCancelAlert = true
+                        }else{
+                            dismiss()
+                        }
                     }
                     .foregroundColor(.white)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        Task {
-                            await vm.uploadAndCompressPhotos()
-                            await vm.deletePhotosFromBucket()
-                            await vm.updatePhotosInDB()
+                        if vm.hasPhotoChanges {
+                            showSaveAlert = true
+                        }else {
                             dismiss()
                         }
                     }
@@ -145,8 +149,18 @@ struct AdminCarPhotoEditorView: View {
                     .disabled(vm.isSaving)
                 }
             }
-            .alert("Unsaved Changes", isPresented: $showSaveAlert) {
-                Button("Save") {
+            .alert("Unsaved Changes", isPresented: $showCancelAlert) {
+                Button("Cancel", role: .cancel) {}
+                Button("Discard", role: .destructive) {
+                    vm.discardPhotoChanges()
+                    dismiss()
+                }
+            }message: {
+                Text("Are you sure you want to discard editing car photoset? All changes will be lost.")
+            }
+            .alert("Confirm Action", isPresented: $showSaveAlert){
+                Button("Cancel", role: .cancel) {}
+                Button("Save", role: .confirm){
                     Task {
                         await vm.uploadAndCompressPhotos()
                         await vm.deletePhotosFromBucket()
@@ -154,16 +168,8 @@ struct AdminCarPhotoEditorView: View {
                         dismiss()
                     }
                 }
-                
-                Button("Discard", role: .destructive) {
-                    vm.discardPhotoChanges()
-                    dismiss()
-                }
-                
-                
-                Button("Cancel", role: .cancel) {}
             }message: {
-                Text("Do you want to save your changes before leaving?")
+                Text("Are you sure you want to save all photos of this car? Users will see this changes after this.")
             }
             
         }

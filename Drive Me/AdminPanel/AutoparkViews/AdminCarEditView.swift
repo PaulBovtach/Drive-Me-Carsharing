@@ -6,6 +6,8 @@ struct AdminCarEditView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var showPhotoEditor = false
+    @State private var showCancelAlert = false
+    @State private var showSaveAlert = false
     
     
     init(car: Car) {
@@ -28,8 +30,6 @@ struct AdminCarEditView: View {
             
             ScrollView {
                 VStack(spacing: 24) {
-                    //carousel
-                    
                     ZStack(alignment: .topTrailing){
                         ImageCardCarousel(car: vm.car)
                         
@@ -57,6 +57,13 @@ struct AdminCarEditView: View {
                         Text("Vehicle Details")
                             .font(.title3.bold())
                             .foregroundColor(.white)
+                        
+                        if !vm.errorMessage.isEmpty {
+                            Text(vm.errorMessage)
+                                .font(.footnote)
+                                .foregroundColor(.red)
+                                .transition(.opacity)
+                        }
                         
                         //car brand
                         VStack(alignment: .leading, spacing: 4){
@@ -220,20 +227,51 @@ struct AdminCarEditView: View {
             AdminCarPhotoEditorView(vm: vm)
                 
         }
-        
         .navigationTitle("Edit Vehicle")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel"){
+                    if vm.hasFieldChanges {
+                        showCancelAlert = true
+                    }else{
+                        dismiss()
+                    }
+                }
+                .foregroundStyle(.white)
+            }
+            
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    Task{
-                        await vm.updateFields()
+                    if vm.hasFieldChanges {
+                        showSaveAlert = true
+                    }else {
+                        dismiss()
                     }
                 }
                 .fontWeight(.bold)
                 .foregroundColor(.green)
                 .disabled(vm.isSaving)
             }
+        }
+        .alert("Unsaved Changes", isPresented: $showCancelAlert) {
+            Button("Discard", role: .destructive) { dismiss() }
+            Button("Cancel", role: .cancel) {}
+        }message: {
+            Text("Are you sure you want to discard editing car? All changes will be lost.")
+        }
+        .alert("Confirm Action", isPresented: $showSaveAlert){
+            Button("Cancel", role: .cancel) {}
+            Button("Save", role: .confirm){
+                Task{
+                    let success = await vm.updateFields()
+                    if success { dismiss() }
+                }
+            }
+        }message: {
+            Text("Are you sure you want to save all changes of this car? Users will see this changes after this.")
         }
     }
     

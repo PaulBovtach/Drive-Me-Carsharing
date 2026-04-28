@@ -56,6 +56,13 @@ struct AdminCarEditView: View {
                             .font(.title3.bold())
                             .foregroundColor(.white)
                         
+                        if !vm.errorMessage.isEmpty {
+                            Text(vm.errorMessage)
+                                .font(.footnote)
+                                .foregroundColor(.red)
+                                .transition(.opacity)
+                        }
+                        
                         //car brand
                         VStack(alignment: .leading, spacing: 4){
                             Text("Car Brand").font(.caption).foregroundStyle(.gray).padding(.leading, 4)

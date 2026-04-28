@@ -61,6 +61,7 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var photosToDeleteFromBucket: [String] = []
     
     @Published var isSaving = false
+    @Published var errorMessage = ""
     
     
     init(car: Car) {
@@ -80,39 +81,44 @@ class AdminCarEditViewModel: ObservableObject {
     
     func updateFields() async {
         
-            let parsedConsumption = Double(consumption) ?? 0.0
-            let parsedPrice = Int(priceStr) ?? 0
-            
-            isSaving = true
-            
-            let dataToUpdate = CarUpdateData(
-                brand: brand,
-                model: model,
-                year: year,
-                consumption: parsedConsumption,
-                fuel_type: fuelType.rawValue,
-                transmission_type: transmissionType.rawValue,
-                price_per_day: parsedPrice,
-                is_available: isAvailable,
-                description: description
-            )
-            
-            do {
-                
-                try await supabase
-                    .from("cars")
-                    .update(dataToUpdate)
-                    .eq("id", value: car.id)
-                    .execute()
-                
-                print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
-                
-            } catch {
-                print("Failed to update car's info: \(error.localizedDescription)")
-            }
+        withAnimation { self.errorMessage = "" }
+        guard validateData() else { return }
         
+        
+        let parsedConsumption = Double(consumption) ?? 0.0
+        let parsedPrice = Int(priceStr) ?? 0
+        
+        isSaving = true
+        defer{
             isSaving = false
         }
+        
+        let dataToUpdate = CarUpdateData(
+            brand: brand,
+            model: model,
+            year: year,
+            consumption: parsedConsumption,
+            fuel_type: fuelType.rawValue,
+            transmission_type: transmissionType.rawValue,
+            price_per_day: parsedPrice,
+            is_available: isAvailable,
+            description: description
+        )
+        
+        do {
+            
+            try await supabase
+                .from("cars")
+                .update(dataToUpdate)
+                .eq("id", value: car.id)
+                .execute()
+            
+            print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
+        } catch {
+            print("Failed to update car's info: \(error.localizedDescription)")
+        }
+        
+    }
     
     
     //MARK: Photo Editor
@@ -240,6 +246,31 @@ class AdminCarEditViewModel: ObservableObject {
         } catch {
             print("ADMIN. Failed to sync image URLs: \(error.localizedDescription)")
         }
+    }
+    
+    //validation
+    func validateData() -> Bool {
+        if brand.trimmingCharacters(in: .whitespaces).isEmpty ||
+            model.trimmingCharacters(in: .whitespaces).isEmpty ||
+            priceStr.trimmingCharacters(in: .whitespaces).isEmpty ||
+            consumption.trimmingCharacters(in: .whitespaces).isEmpty {
+            
+            withAnimation { errorMessage = "Please fill in all fields before publishing." }
+            return false
+        }
+        
+        guard let _ = Int(priceStr) else {
+            withAnimation { errorMessage = "Price must contain only numbers." }
+            return false
+        }
+        
+        let formattedConsumption = consumption.replacingOccurrences(of: ",", with: ".")
+        guard let _ = Double(formattedConsumption) else {
+            withAnimation { errorMessage = "Consumption must be a valid number." }
+            return false
+        }
+        
+        return true
     }
     
     

@@ -1,0 +1,319 @@
+import Foundation
+import Combine
+import Supabase
+import SwiftUI
+import PhotosUI
+
+enum FuelType: String, CaseIterable {
+    case diesel = "Diesel"
+    case gasoline = "Gasoline"
+    case gasGasoline = "Gas/Gasoline"
+    case hybrid = "Hybrid"
+    case electro = "Electro"
+}
+
+enum TransmissionType: String, CaseIterable {
+    case manual = "Manual"
+    case automatic = "Automatic"
+}
+
+struct CarUpdateData: Codable {
+    let brand: String
+    let model: String
+    let year: Int
+    let consumption: Double
+    let fuel_type: String
+    let transmission_type: String
+    let price_per_day: Int
+    let is_available: Bool
+    let description: String
+}
+
+struct LocalPhoto: Identifiable {
+    let id = UUID()
+    let data: Data
+    let image: UIImage
+}
+
+@MainActor
+class AdminCarEditViewModel: ObservableObject {
+    @Published var car: Car
+    
+    let years = Array(1900...Calendar.current.component(.year, from: Date()))
+    
+    //buffer of fields
+    @Published var brand: String
+    @Published var model: String
+    @Published var year: Int
+    @Published var consumption: String
+    @Published var fuelType: FuelType
+    @Published var transmissionType: TransmissionType
+    @Published var priceStr: String
+    @Published var isAvailable: Bool
+    @Published var description: String
+    
+    //buffer of photos
+    @Published var existingImagesUrls: [String]
+    @Published var newPhotosToUpload: [LocalPhoto] = []
+    @Published var selectedPhotoItems: [PhotosPickerItem] = [] {
+        didSet { handlePhotoSelection() }
+    }
+    @Published var photosToDeleteFromBucket: [String] = []
+    
+    @Published var isSaving = false
+    @Published var errorMessage = ""
+    
+    var hasFieldChanges: Bool {
+        let currentConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
+        let originalConsumption = car.consumption ?? 0.0
+        //consumption bool
+        let consumptionChanged = currentConsumption != originalConsumption
+        
+        let currentPrice = Int(priceStr) ?? 0
+        let originalPrice = car.pricePerDay ?? 0
+        //price bool
+        let priceChanged = currentPrice != originalPrice
+        
+        return brand != (car.brand ?? "") ||
+        model != (car.model ?? "") ||
+        year != (car.year ?? 2000) ||
+        fuelType.rawValue != (car.fuelType ?? "") ||
+        transmissionType.rawValue != (car.transmissionType ?? "") ||
+        isAvailable != car.isAvailable ||
+        description != (car.description ?? "") ||
+        consumptionChanged ||
+        priceChanged
+    }
+    
+    var hasPhotoChanges: Bool {
+        let addedNewPhotos = !newPhotosToUpload.isEmpty
+        let removedExistingPhotos = existingImagesUrls != (car.imageUrls ?? [])
+        let hasPhotosToDelete = !photosToDeleteFromBucket.isEmpty
+        
+        return addedNewPhotos || removedExistingPhotos || hasPhotosToDelete
+    }
+    
+    
+    init(car: Car) {
+        self.car = car
+        self.brand = car.brand ?? ""
+        self.model = car.model ?? ""
+        self.year = car.year ?? 2000
+        self.consumption = String(car.consumption ?? 0.0)
+        self.fuelType = FuelType(rawValue: car.fuelType ?? "") ?? .electro
+        self.transmissionType = TransmissionType(rawValue: car.transmissionType ?? "") ?? .manual
+        self.priceStr = String(car.pricePerDay ?? 0)
+        self.isAvailable = car.isAvailable
+        self.description = car.description ?? ""
+        
+        self.existingImagesUrls = car.imageUrls ?? []
+    }
+    
+    func updateFields() async -> Bool {
+        
+        withAnimation { self.errorMessage = "" }
+        guard validateData() else { return false }
+        
+        
+        let parsedConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
+        let parsedPrice = Int(priceStr) ?? 0
+        
+        isSaving = true
+        defer{
+            isSaving = false
+        }
+        
+        let dataToUpdate = CarUpdateData(
+            brand: brand,
+            model: model,
+            year: year,
+            consumption: parsedConsumption,
+            fuel_type: fuelType.rawValue,
+            transmission_type: transmissionType.rawValue,
+            price_per_day: parsedPrice,
+            is_available: isAvailable,
+            description: description
+        )
+        
+        do {
+            try await supabase
+                .from("cars")
+                .update(dataToUpdate)
+                .eq("id", value: car.id)
+                .execute()
+            
+            print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
+            return true
+        } catch {
+            print("Failed to update car's info: \(error.localizedDescription)")
+            return false
+        }
+        
+    }
+    
+    
+    //MARK: Photo Editor
+    func handlePhotoSelection(){
+        
+        let itemsToProcess = selectedPhotoItems
+        guard !itemsToProcess.isEmpty else { return }
+        self.selectedPhotoItems.removeAll()
+        
+        Task{
+            for item in itemsToProcess {
+                do{
+                    if let data = try await item.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data){
+                        let localPhoto = LocalPhoto(data: data, image: uiImage)
+                        self.newPhotosToUpload.append(localPhoto)
+                    }
+                }catch{
+                    print("ADMIN. Failed to handle new photos from gallery: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    func removeExistingPhoto(url: String) {
+        existingImagesUrls.removeAll() {$0 == url}
+        photosToDeleteFromBucket.append(url)
+        
+    }
+    
+    func removeLocalPhoto(id: UUID) {
+        newPhotosToUpload.removeAll() {$0.id == id}
+    }
+    
+    func discardPhotoChanges() {
+        self.existingImagesUrls = self.car.imageUrls ?? []
+        self.newPhotosToUpload.removeAll()
+        self.selectedPhotoItems.removeAll()
+        self.photosToDeleteFromBucket.removeAll()
+    }
+    
+    func deletePhotosFromBucket() async {
+        guard !photosToDeleteFromBucket.isEmpty else { return }
+        
+        //trimming the "car_images/"
+        let pathsToDelete = photosToDeleteFromBucket.compactMap { urlString -> String? in
+            guard let range = urlString.range(of: "car_images/") else { return nil }
+            return String(urlString[range.upperBound...])
+        }
+        
+        guard !pathsToDelete.isEmpty else { return }
+        
+        do{
+            try await supabase
+                .storage
+                .from("car_images")
+                .remove(paths: pathsToDelete)
+            
+            print("ADMIN. Successfully deleted \(pathsToDelete.count) photos from bucket.")
+            self.photosToDeleteFromBucket.removeAll()
+        }catch {
+            print("ADMIN. Failed to delete photos from bucket: \(error.localizedDescription)")
+        }
+        
+    }
+    
+    
+    //MARK: Compressing and Uploading photos
+    func uploadAndCompressPhotos() async {
+        
+        guard !newPhotosToUpload.isEmpty else {return}
+        
+        isSaving = true
+        
+        var newlyUpdatedUrls: [String] = []
+        
+        for localPhoto in newPhotosToUpload {
+            
+            //compressing
+            guard let compressedData = localPhoto.image.jpegData(compressionQuality: 0.6) else {
+                print("ADMIN. Failed to compress photo.")
+                continue
+            }
+            
+            let filename = "\(car.id)/\(UUID().uuidString)"
+            do{
+                //uploading to bucket
+                try await supabase
+                    .storage
+                    .from("car_images")
+                    .upload(filename, data: compressedData, options: FileOptions(contentType: "image/jpeg"))
+                
+                //getting link
+                let publicUrl = try supabase.storage
+                    .from("car_images")
+                    .getPublicURL(path: filename)
+                
+                newlyUpdatedUrls.append(publicUrl.absoluteString)
+                
+            }catch{
+                print("Failed to upload photo \(filename): \(error.localizedDescription)")
+            }
+        }
+        
+        if !newlyUpdatedUrls.isEmpty {
+            self.existingImagesUrls.append(contentsOf: newlyUpdatedUrls)
+            self.newPhotosToUpload.removeAll()
+            
+            print("ADMIN. Successfully uploaded \(newlyUpdatedUrls.count) new photos!")
+        }
+        
+        isSaving = false
+    }
+    
+    func updatePhotosInDB() async {
+        do {
+            try await supabase
+                .from("cars")
+                .update(["image_urls": existingImagesUrls])
+                .eq("id", value: car.id)
+                .execute()
+            
+            car.imageUrls = existingImagesUrls
+            print("ADMIN. Image URLs successfully synced with DB!")
+        } catch {
+            print("ADMIN. Failed to sync image URLs: \(error.localizedDescription)")
+        }
+    }
+    
+    //validation
+    func validateData() -> Bool {
+        if brand.trimmingCharacters(in: .whitespaces).isEmpty ||
+            model.trimmingCharacters(in: .whitespaces).isEmpty ||
+            priceStr.trimmingCharacters(in: .whitespaces).isEmpty ||
+            consumption.trimmingCharacters(in: .whitespaces).isEmpty {
+            
+            withAnimation { errorMessage = "Please fill in all fields before publishing." }
+            return false
+        }
+        
+        guard let _ = Int(priceStr) else {
+            withAnimation { errorMessage = "Price must contain only numbers." }
+            return false
+        }
+        
+        let formattedConsumption = consumption.replacingOccurrences(of: ",", with: ".")
+        guard let _ = Double(formattedConsumption) else {
+            withAnimation { errorMessage = "Consumption must be a valid number." }
+            return false
+        }
+        
+        return true
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}

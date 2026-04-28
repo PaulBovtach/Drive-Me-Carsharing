@@ -1,6 +1,15 @@
 {
-  "originHash" : "bec61dc8f3826248cedd4ecb554162334d4d01e1300c71af1dd3348ce4c0a2e0",
+  "originHash" : "3f41b282d4e968d9407a1b7f85d8efe3f3e82b0d7b9b21e7b33e5dad097f23e9",
   "pins" : [
+    {
+      "identity" : "better-swiftui-texteditor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/matsveil/better-swiftui-texteditor",
+      "state" : {
+        "revision" : "a21ffe7926ab442470ed10019866d3ffeda1014a",
+        "version" : "1.1.1"
+      }
+    },
     {
       "identity" : "supabase-swift",
       "kind" : "remoteSourceControl",

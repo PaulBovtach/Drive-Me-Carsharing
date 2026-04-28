@@ -39,6 +39,7 @@ struct Car: Identifiable, Codable, Hashable {
     var isAvailable: Bool
     var imageUrls: [String]?
     var pricePerDay: Int?
+    var description: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -51,6 +52,7 @@ struct Car: Identifiable, Codable, Hashable {
         case isAvailable = "is_available"
         case imageUrls = "image_urls"
         case pricePerDay = "price_per_day"
+        case description
     }
 }
 

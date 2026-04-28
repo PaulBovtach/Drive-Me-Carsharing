@@ -63,6 +63,36 @@ class AdminCarEditViewModel: ObservableObject {
     @Published var isSaving = false
     @Published var errorMessage = ""
     
+    var hasFieldChanges: Bool {
+        let currentConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
+        let originalConsumption = car.consumption ?? 0.0
+        //consumption bool
+        let consumptionChanged = currentConsumption != originalConsumption
+        
+        let currentPrice = Int(priceStr) ?? 0
+        let originalPrice = car.pricePerDay ?? 0
+        //price bool
+        let priceChanged = currentPrice != originalPrice
+        
+        return brand != (car.brand ?? "") ||
+        model != (car.model ?? "") ||
+        year != (car.year ?? 2000) ||
+        fuelType.rawValue != (car.fuelType ?? "") ||
+        transmissionType.rawValue != (car.transmissionType ?? "") ||
+        isAvailable != car.isAvailable ||
+        description != (car.description ?? "") ||
+        consumptionChanged ||
+        priceChanged
+    }
+    
+    var hasPhotoChanges: Bool {
+        let addedNewPhotos = !newPhotosToUpload.isEmpty
+        let removedExistingPhotos = existingImagesUrls != (car.imageUrls ?? [])
+        let hasPhotosToDelete = !photosToDeleteFromBucket.isEmpty
+        
+        return addedNewPhotos || removedExistingPhotos || hasPhotosToDelete
+    }
+    
     
     init(car: Car) {
         self.car = car
@@ -79,10 +109,10 @@ class AdminCarEditViewModel: ObservableObject {
         self.existingImagesUrls = car.imageUrls ?? []
     }
     
-    func updateFields() async {
+    func updateFields() async -> Bool {
         
         withAnimation { self.errorMessage = "" }
-        guard validateData() else { return }
+        guard validateData() else { return false }
         
         
         let parsedConsumption = Double(consumption.replacingOccurrences(of: ",", with: ".")) ?? 0.0
@@ -106,7 +136,6 @@ class AdminCarEditViewModel: ObservableObject {
         )
         
         do {
-            
             try await supabase
                 .from("cars")
                 .update(dataToUpdate)
@@ -114,8 +143,10 @@ class AdminCarEditViewModel: ObservableObject {
                 .execute()
             
             print("ADMIN. Car \(brand) \(model) successfully updated(fields)!")
+            return true
         } catch {
             print("Failed to update car's info: \(error.localizedDescription)")
+            return false
         }
         
     }

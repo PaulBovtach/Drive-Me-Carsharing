@@ -15,6 +15,8 @@ struct AdminAddCarView: View {
     @StateObject private var vm = AdminAddCarViewModel()
     @Environment(\.dismiss) var dismiss
     
+    @State private var showCancelAlert = false
+    
     let columns = [GridItem(.adaptive(minimum: 100), spacing: 12)]
     
     var body: some View {
@@ -71,7 +73,7 @@ struct AdminAddCarView: View {
                         .padding()
                         .glassEffect()
                         
-                        // MARK: - Секція деталей (Форма)
+                        
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Vehicle Details")
                                 .font(.title3.bold())
@@ -81,7 +83,7 @@ struct AdminAddCarView: View {
                             VStack(alignment: .leading, spacing: 4){
                                 Text("Car Brand").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
                                 
-                                TextField("Brand", text: $vm.brand, prompt: Text("Brand Name").foregroundStyle(.gray.opacity(0.9)))
+                                TextField("", text: $vm.brand, prompt: Text("Brand Name").foregroundStyle(.gray.opacity(0.9)))
                                     .keyboardType(.default)
                                     .textInputAutocapitalization(.words)
                                     .autocorrectionDisabled(true)
@@ -90,12 +92,11 @@ struct AdminAddCarView: View {
                                     .foregroundColor(.black)
                                     .clipShape(.rect(cornerRadius: 15))
                             }
-                            
                             //car model
                             VStack(alignment: .leading, spacing: 4){
-                                Text("Car Model").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
+                                Text("").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
                                 
-                                TextField("Model", text: $vm.model, prompt: Text("Model Name").foregroundStyle(.gray.opacity(0.9)))
+                                TextField("", text: $vm.model, prompt: Text("Model Name").foregroundStyle(.gray.opacity(0.9)))
                                     .keyboardType(.default)
                                     .textInputAutocapitalization(.words)
                                     .autocorrectionDisabled(true)
@@ -146,7 +147,7 @@ struct AdminAddCarView: View {
                                 VStack(alignment: .leading, spacing: 4){
                                     Text("Consumption").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
                                     HStack {
-                                        TextField("Consumption", text: $vm.consumption)
+                                        TextField("", text: $vm.consumption)
                                             .keyboardType(.decimalPad)
                                         
                                         Text("L/100km")
@@ -198,7 +199,7 @@ struct AdminAddCarView: View {
                             VStack(alignment: .leading, spacing: 4){
                                 Text("Description").font(.caption).foregroundStyle(.gray).padding(.leading, 4)
                                 
-                                BetterEditor(text: $vm.description, placeholder: "Type car description", maxHeight: 100)
+                                BetterEditor(text: $vm.description, placeholder: "Car description", maxHeight: 100)
                                     .betterEditorScrollIndicators(.visible)
                                     
                                     .foregroundStyle(.black)
@@ -227,9 +228,17 @@ struct AdminAddCarView: View {
             }
             .navigationTitle("Add New Car")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }.foregroundColor(.white)
+                    Button("Cancel") {
+                        if vm.hasChanges {
+                            showCancelAlert = true
+                        }else{
+                            dismiss()
+                        }
+                    }
+                    .foregroundColor(.white)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Publish") {
@@ -243,19 +252,12 @@ struct AdminAddCarView: View {
                     .disabled(vm.isSaving || vm.brand.isEmpty || vm.model.isEmpty)
                 }
             }
-        }
-    }
-    
-    // Допоміжний компонент для полів
-    private func customTextField(title: String, placeholder: String, text: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption).foregroundColor(.gray)
-            TextField(placeholder, text: text)
-                .textInputAutocapitalization(.words)
-                .padding(10)
-                .background(Color.white.opacity(0.8))
-                .foregroundColor(.black)
-                .cornerRadius(12)
+            .alert("Unsaved Changes", isPresented: $showCancelAlert) {
+                Button("Discard", role: .destructive) { dismiss() }
+                Button("Cancel", role: .cancel) {}
+            }message: {
+                Text("Are you sure you want to discard changes while creating new car? All entered data will be lost.")
+            }
         }
     }
 }

@@ -33,6 +33,15 @@ class AdminAddCarViewModel: ObservableObject {
     
     @Published var isSaving = false
     
+    var hasChanges: Bool {
+        return !brand.isEmpty ||
+        !model.isEmpty ||
+        !priceStr.isEmpty ||
+        !consumption.isEmpty ||
+        !description.isEmpty ||
+        !newPhotosToUpload.isEmpty
+    }
+    
     
     
     //struct to create new row in "cars" table

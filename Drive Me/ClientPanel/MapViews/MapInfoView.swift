@@ -36,20 +36,12 @@ struct MapInfoView: View {
                 
                 // Draw dots
                 ForEach(viewModel.locations) { location in
-                    Annotation(location.name, coordinate: location.coordinate) {
-                        ZStack {
-                            Circle()
-                                .fill(colorFor(type: location.type))
-                                .frame(width: 36, height: 36)
-                                .shadow(radius: 4)
-                            Image(systemName: iconFor(type: location.type))
-                                .foregroundColor(.white)
-                                .font(.system(size: 16, weight: .bold))
-                        }
-                        .scaleEffect(viewModel.selectedLocation == location ? 1.5 : 1.0)
-                        .animation(.spring(), value: viewModel.selectedLocation)
-                    }
-                    .tag(location)
+                    
+                    Marker(location.name, systemImage: iconFor(type: location.type), coordinate: location.coordinate)
+                        .tint(colorFor(type: location.type))
+                        .tag(location)
+                    
+                    
                 }
             }
             .mapStyle(.standard(elevation: .realistic))

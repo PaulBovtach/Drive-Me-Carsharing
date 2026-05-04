@@ -1,31 +1,24 @@
-//
-//  MapInfoView.swift
-//  Drive Me
-//
-
 import SwiftUI
 import MapKit
 
-struct MapInfoView: View {
-    @StateObject private var viewModel = MapViewModel()
+struct AdminMapView: View {
+    @ObservedObject var viewModel: AdminMapViewModel
     @StateObject private var locationManager = LocationManager()
     
     let initialCamera = MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000)
-        
+    
     @State private var cameraPosition: MapCameraPosition
-        
     @State private var currentCamera: MapCamera
-        
-    init() {
-        _cameraPosition = State(initialValue: .camera(initialCamera))
-        _currentCamera = State(initialValue: initialCamera)
+    
+    init(viewModel: AdminMapViewModel) {
+        self.viewModel = viewModel
+        _cameraPosition = State(initialValue: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000)))
+        _currentCamera = State(initialValue: MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000))
     }
     
     var body: some View {
         ZStack {
-            // MARK: Map
             Map(position: $cameraPosition, selection: $viewModel.selectedLocation) {
-                //user's location
                 UserAnnotation()
                 
                 ForEach(viewModel.zones) { zone in
@@ -34,18 +27,13 @@ struct MapInfoView: View {
                         .stroke(Color.green, lineWidth: 2)
                 }
                 
-                // Draw dots
                 ForEach(viewModel.locations) { location in
-                    
                     Marker(location.name, systemImage: iconFor(type: location.type), coordinate: location.coordinate)
                         .tint(colorFor(type: location.type))
                         .tag(location)
-                    
-                    
                 }
             }
             .mapStyle(.standard(elevation: .realistic))
-            .ignoresSafeArea()
             .mapControls {
                 MapCompass()
                 MapScaleView()
@@ -59,7 +47,7 @@ struct MapInfoView: View {
             VStack {
                 Spacer()
                 HStack {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text("Map Legend")
                                 .font(.headline)
@@ -105,24 +93,16 @@ struct MapInfoView: View {
                     
                     Spacer()
                 }
-                .padding(.bottom, 35)
+                .padding(.bottom, 10)
             }
-        }
-        .task {
-            await viewModel.fetchMapData()
-        }
-        .sheet(item: $viewModel.selectedLocation) { location in
-            LocationDetailSheetView(location: location, viewModel: viewModel)
-                .presentationDetents([.fraction(0.35)])
-                .presentationDragIndicator(.visible)
         }
         .onChange(of: viewModel.selectedLocation) { oldValue, newValue in
             if let selected = newValue {
-                withAnimation(.easeInOut(duration: 1.0)) {
+                withAnimation(.easeInOut(duration: 0.7)) {
                     cameraPosition = .camera(
                         MapCamera(
                             centerCoordinate: selected.coordinate,
-                            distance: 3500
+                            distance: 4500
                         )
                     )
                 }
@@ -143,8 +123,4 @@ struct MapInfoView: View {
         case .dropoff: return "flag.checkered"
         }
     }
-}
-
-#Preview {
-    MapInfoView()
 }

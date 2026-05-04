@@ -11,12 +11,10 @@ struct LegendRow: View {
     let color: Color
     let icon: String
     let text: String
+    
     var body: some View {
-        HStack(spacing: 8) {
-            Circle()
-                .fill(color)
-                .frame(width: 20, height: 20)
-                .overlay(Image(systemName: icon).font(.system(size: 10, weight: .bold)).foregroundColor(.white))
+        HStack(spacing: 12) {
+            MapMarkerIconView(color: color, icon: icon)
             Text(text)
                 .font(.subheadline)
                 .foregroundColor(.white)

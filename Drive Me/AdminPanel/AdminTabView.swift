@@ -26,7 +26,7 @@ struct AdminTabView: View {
             }
             
             Tab{
-                Text("Map redactor")
+                AdminMapDashboardView()
             }label: {
                 Image(systemName: "map.fill")
                 Text("Map Admin")

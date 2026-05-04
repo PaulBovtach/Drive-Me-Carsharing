@@ -26,7 +26,7 @@ struct AdminMapDashboardView: View {
                 if viewModel.selectedTab == .map {
                     AdminMapView(viewModel: viewModel)
                 } else {
-                    AdminLocationListComponent(viewModel: viewModel)
+                    AdminLocationListView(viewModel: viewModel)
                 }
             }
             .safeAreaInset(edge: .top) {
@@ -54,48 +54,5 @@ struct AdminMapDashboardView: View {
                 .presentationDetents([.fraction(0.35)])
                 .presentationDragIndicator(.visible)
         }
-    }
-}
-
-struct AdminLocationListComponent: View {
-    @ObservedObject var viewModel: AdminMapViewModel
-    
-    var body: some View {
-        List {
-            if viewModel.locations.isEmpty {
-                Text("No locations available.")
-                    .foregroundColor(.gray)
-                    .listRowBackground(Color.clear)
-            }
-            
-            ForEach(viewModel.locations) { location in
-                Button {
-                    viewModel.selectedLocation = location
-                } label: {
-                    HStack(spacing: 16) {
-                        Circle()
-                            .fill(location.type == .both ? Color.green : Color.orange)
-                            .frame(width: 12, height: 12)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(location.name)
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            Text(location.address)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray.opacity(0.5))
-                            .font(.caption)
-                    }
-                    .padding(.vertical, 4)
-                }
-                .listRowBackground(Color.white.opacity(0.05))
-            }
-        }
-        .scrollContentBackground(.hidden)
     }
 }

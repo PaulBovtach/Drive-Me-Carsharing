@@ -47,7 +47,7 @@ struct AdminMapView: View {
             VStack {
                 Spacer()
                 HStack {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Text("Map Legend")
                                 .font(.headline)

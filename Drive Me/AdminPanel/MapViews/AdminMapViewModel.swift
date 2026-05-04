@@ -25,18 +25,25 @@ class AdminMapViewModel: ObservableObject {
     
     @Published var selectedTab: AdminMapTab = .map
     
+    var sortedLocations: [MapLocation] {
+            locations.sorted {
+                if $0.type != $1.type {
+                    return $0.type == .both
+                }
+                return $0.name < $1.name
+            }
+        }
+    
     // MARK: Fetch Data from Supabase
     func fetchMapData() async {
         isLoading = true
         do {
-            // fetch dots
             let fetchedLocations: [MapLocation] = try await supabase
                 .from("locations")
                 .select()
                 .execute()
                 .value
             
-            // fetch zones for polygon
             let fetchedZones: [MapZone] = try await supabase
                 .from("zones")
                 .select()
@@ -51,6 +58,22 @@ class AdminMapViewModel: ObservableObject {
             print("Failed to fetch locations: \(error.localizedDescription)")
         }
         isLoading = false
+    }
+    
+    func deleteLocationImmediately(id: UUID) async {
+        do {
+            try await supabase.from("locations").delete().eq("id", value: id).execute()
+            
+            await fetchMapData()
+            
+            if selectedLocation?.id == id {
+                selectedLocation = nil
+            }
+            
+            print("ADMIN. Location deleted successfully!")
+        } catch {
+            print("ADMIN. Delete error: \(error.localizedDescription)")
+        }
     }
     
     // MARK: Logics to go to another apps (Maps, GoogleMaps)

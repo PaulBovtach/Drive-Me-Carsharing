@@ -187,10 +187,13 @@ struct BookByDateView: View {
                     }
                 }
             }
-            .navigationTitle("Search")
+            .navigationTitle("Book by date")
             .navigationBarTitleDisplayMode(.inline)
             .task {
                 await viewModel.fetchGlobalData()
+            }
+            .refreshable {
+                await viewModel.fetchGlobalData(isRefreshing: true)
             }
         }
     }

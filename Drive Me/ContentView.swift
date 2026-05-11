@@ -7,42 +7,25 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @EnvironmentObject private var authManager: AuthManager
-    var body: some View {
-        
-        TabView {
-            Tab {
-                CarListView()
-            } label: {
-                Image(systemName: "car")
-                Text("Cars")
-            }
-            Tab {
-                BookByDateView()
-            }label: {
-                Image(systemName: "calendar")
-                Text("Dates")
-            }
-            
-            Tab {
-                MapInfoView()
-            }label: {
-                Image(systemName: "map")
-                Text("Map")
-            }
-            
-            Tab {
-                AccountView()
-            }label: {
-                Image(systemName: "person")
-                Text("Account")
-            }
-            
-            
+import SwiftUI
 
+struct ContentView: View {
+    @EnvironmentObject var authManager: AuthManager
+    
+    var body: some View {
+        ZStack {
+            if authManager.isAuthenticated {
+                if authManager.isAdmin {
+                    AdminTabView()
+                        .transition(.opacity)
+                } else {
+                    ClientTabView()
+                        .transition(.opacity)
+                }
+            } else {
+                ClientTabView()
+            }
         }
-        .tint(.white)
         
     }
 }

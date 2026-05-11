@@ -31,10 +31,8 @@ struct CarDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     
-                    // MARK: - 1. Images Carousele Card
                     ImageCardCarousel(car: car)
                     
-                    // MARK: - 2. Main Information
                     VStack(alignment: .leading, spacing: 16) {
                         
                         Text("\(car.brand ?? "Unknown") \(car.model ?? "")")
@@ -100,7 +98,6 @@ struct CarDetailView: View {
             .navigationTitle("Details")
             
             
-            // MARK: - 3. Кнопка "Забронювати" внизу екрану
             .overlay(alignment: .bottom) {
                 Button(action: {
                     print("Reserve \(car.brand ?? "")")
@@ -142,14 +139,14 @@ struct ImageCardCarousel: View {
             SwiftUICarousel(imageUrls, id: \.self,
                             index: $currentIndex,
                             showIndicators: true,
-                            indicatorActiveColor: .green, // Замінив .myGreen на .green (виправте, якщо маєте кастомний колір)
+                            indicatorActiveColor: .green,
                             indicatorInactiveColor: .gray.opacity(0.3)){ img in
                 
                 AsyncImage(url: URL(string: img)) { phase in
                     switch phase {
                     case .empty:
                         ProgressView()
-                            .frame(height: 200) // Трохи збільшив висоту для екрану деталей
+                            .frame(height: 200)
                             .frame(maxWidth: .infinity)
                             .background(Color.gray.opacity(0.1))
                         
@@ -176,9 +173,15 @@ struct ImageCardCarousel: View {
                 .glassEffect()
             }
                             .frame(height: 300)
+                            .id(imageUrls)
+                            .onChange(of: imageUrls) {
+                                withAnimation {
+                                    currentIndex = 0
+                                }
+                            }
             
         } else {
-            // Плейсхолдер, якщо картинок немає
+            
             Image(systemName: "photo")
                 .font(.system(size: 50))
                 .frame(height: 200)
@@ -186,13 +189,10 @@ struct ImageCardCarousel: View {
                 .foregroundColor(.gray)
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(12)
+                .glassEffect()
                 .padding(.horizontal)
         }
-        
     }
-    
-    
-    
 }
 
 struct BadgeView: View {
@@ -215,11 +215,11 @@ struct BadgeView: View {
 struct BouncyGlassButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-        // Якщо кнопка натиснута - зменшуємо її до 90% розміру
+        
             .scaleEffect(configuration.isPressed ? 0.85 : 1.0)
-        // Робимо її трохи прозорішою при натисканні
+        
             .opacity(configuration.isPressed ? 0.8 : 1.0)
-        // Плавна, пружиниста анімація
+        
             .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0), value: configuration.isPressed)
     }
 }

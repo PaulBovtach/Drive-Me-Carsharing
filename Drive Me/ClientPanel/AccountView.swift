@@ -103,6 +103,19 @@ struct AccountView: View {
                 }
                 .navigationTitle("My account")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: {
+                            withAnimation {
+                                UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+                            }
+                        }) {
+                            Image(systemName: "questionmark.circle")
+                                .font(.body)
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
                 .alert("Sign Out", isPresented: $showSignOutAlert) {
                     Button("Cancel", role: .cancel) { }
                     Button("Sign Out", role: .destructive) {

@@ -31,10 +31,8 @@ struct CarDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     
-                    // MARK: - 1. Images Carousele Card
                     ImageCardCarousel(car: car)
                     
-                    // MARK: - 2. Main Information
                     VStack(alignment: .leading, spacing: 16) {
                         
                         Text("\(car.brand ?? "Unknown") \(car.model ?? "")")
@@ -100,7 +98,6 @@ struct CarDetailView: View {
             .navigationTitle("Details")
             
             
-            // MARK: - 3. Кнопка "Забронювати" внизу екрану
             .overlay(alignment: .bottom) {
                 Button(action: {
                     print("Reserve \(car.brand ?? "")")
@@ -195,12 +192,7 @@ struct ImageCardCarousel: View {
                 .glassEffect()
                 .padding(.horizontal)
         }
-        
-        
     }
-    
-    
-    
 }
 
 struct BadgeView: View {

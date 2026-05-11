@@ -31,6 +31,13 @@ struct ClientTabView: View {
             }
             
             Tab {
+                MyBookingsView()
+            }label: {
+                Image(systemName: "tray.full.fill")
+                Text("My Bookings")
+            }
+            
+            Tab {
                 AccountView()
             }label: {
                 Image(systemName: "person")

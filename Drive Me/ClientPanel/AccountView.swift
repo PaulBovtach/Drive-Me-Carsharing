@@ -38,7 +38,6 @@ struct AccountView: View {
                                     .foregroundColor(.white)
                                     .shadow(color: .black.opacity(0.2), radius: 10, y: 5)
                                 
-                                
                                 HStack(spacing: 8) {
                                     Text(authManager.currentUserProfile?.name ?? "<name>")
                                     Text(authManager.currentUserProfile?.surname ?? "<surname>")
@@ -49,7 +48,6 @@ struct AccountView: View {
                             }
                             .padding(.top, 20)
                             
-                            
                             VStack(alignment: .leading, spacing: 12) {
                                 BadgeView(icon: "envelope.fill", text: authManager.currentUserProfile?.email ?? "<email>")
                                 BadgeView(icon: "phone.fill", text: authManager.currentUserProfile?.phoneNumber ?? "<number>")
@@ -58,7 +56,6 @@ struct AccountView: View {
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
-                            
                             
                             Button(action: {
                                 showSignOutAlert = true
@@ -73,63 +70,7 @@ struct AccountView: View {
                             .buttonStyle(.glass)
                             .environment(\.colorScheme, .dark)
                             
-                            Divider()
-                                .background(Color.white.opacity(0.2))
-                                .padding(.vertical, 8)
-                                .padding(.horizontal, 24)
-                            
-                            VStack(alignment: .leading, spacing: 16) {
-                                Text("My bookings")
-                                    .foregroundStyle(.white)
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .padding(.horizontal, 24)
-                                
-                                if bookingManager.myBookings.isEmpty {
-                                    Text("You have no bookings yet.")
-                                        .foregroundStyle(.white.opacity(0.6))
-                                        .padding(.horizontal, 24)
-                                } else {
-                                    
-                                    VStack(spacing: 12) {
-                                        ForEach(bookingManager.myBookings) { booking in
-                                            
-                                            NavigationLink {
-                                                BookingDetailView(booking: booking)
-                                                    .environmentObject(bookingManager)
-                                            } label: {
-                                                HStack {
-                                                    Image(systemName: booking.status == "pending" ? "clock.fill" : "checkmark.circle.fill")
-                                                        .foregroundStyle(.white)
-                                                        .font(.title)
-                                                    
-                                                    VStack(alignment: .leading, spacing: 4) {
-                                                        Text(booking.car?.brand ?? "Unknown")
-                                                            .font(.headline)
-                                                            .foregroundColor(.white)
-                                                        
-                                                        Text("\(booking.startDate.formatted(date: .numeric, time: .omitted)) - \(booking.endDate.formatted(date: .numeric, time: .omitted))")
-                                                            .font(.subheadline)
-                                                            .foregroundColor(.gray)
-                                                    }
-                                                    Spacer()
-                                                    Image(systemName: "chevron.right")
-                                                        .foregroundColor(.gray)
-                                                }
-                                                .padding(10)
-                                            }
-                                            .buttonStyle(.glass)
-                                            .environment(\.colorScheme, .dark)
-                                        }
-                                    }
-                                    .padding(.horizontal, 24)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.bottom, 40)
-                            
                         } else {
-                            
                             VStack(spacing: 20) {
                                 Image(systemName: "person.crop.circle.badge.xmark")
                                     .font(.system(size: 80))
@@ -139,7 +80,6 @@ struct AccountView: View {
                                     .foregroundStyle(.white)
                                     .font(.title2)
                                     .fontWeight(.medium)
-                                
                                 
                                 Button(action: {
                                     withAnimation {
@@ -163,23 +103,6 @@ struct AccountView: View {
                 }
                 .navigationTitle("My account")
                 .navigationBarTitleDisplayMode(.inline)
-                .task {
-                    if let usrID = authManager.currentUser?.id {
-                        await bookingManager.fetchMyBookings(userId: usrID)
-                    }
-                }
-                .refreshable {
-                    if let usrID = authManager.currentUser?.id {
-                        await bookingManager.fetchMyBookings(userId: usrID, isRefreshing: true)
-                    }
-                }
-                .onChange(of: authManager.currentUserProfile) { _, newProfile in
-                    if let profile = newProfile {
-                        Task {
-                            await bookingManager.fetchMyBookings(userId: profile.id)
-                        }
-                    }
-                }
                 .alert("Sign Out", isPresented: $showSignOutAlert) {
                     Button("Cancel", role: .cancel) { }
                     Button("Sign Out", role: .destructive) {
@@ -195,10 +118,4 @@ struct AccountView: View {
             }
         }
     }
-}
-
-#Preview {
-    AccountView()
-        .environmentObject(AuthManager(preview: true))
-        .environmentObject(BookingsManager())
 }

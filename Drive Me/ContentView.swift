@@ -7,26 +7,36 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ContentView: View {
+
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
+    
     @EnvironmentObject var authManager: AuthManager
     
     var body: some View {
         ZStack {
-            if authManager.isAuthenticated {
-                if authManager.isAdmin {
-                    AdminTabView()
-                        .transition(.opacity)
-                } else {
-                    ClientTabView()
-                        .transition(.opacity)
-                }
+            if !hasSeenOnboarding {
+                OnboardingView(hasSeenOnboarding: $hasSeenOnboarding)
+                    .transition(.asymmetric(insertion: .identity, removal: .move(edge: .leading)))
             } else {
-                ClientTabView()
+                Group {
+                    if authManager.isAuthenticated {
+                        if authManager.isAdmin {
+                            AdminTabView()
+                                .transition(.opacity)
+                        } else {
+                            ClientTabView()
+                                .transition(.opacity)
+                        }
+                    } else {
+                        ClientTabView()
+                            .transition(.opacity)
+                    }
+                }
             }
         }
-        
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: hasSeenOnboarding)
+        .animation(.easeInOut, value: authManager.isAuthenticated)
     }
 }
 

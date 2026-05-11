@@ -17,12 +17,11 @@ struct AccountView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(red: 50/255, green: 80/255, blue: 40/255),   // Top: Warm, earthy forest green
-                        Color(red: 35/255, green: 60/255, blue: 25/255),   // Middle: Deeper forest mid-tone
-                        Color(red: 20/255, green: 40/255, blue: 15/255)    // Bottom: Very dark, shadowed underbrush
+                        Color(red: 50/255, green: 80/255, blue: 40/255),
+                        Color(red: 35/255, green: 60/255, blue: 25/255),
+                        Color(red: 20/255, green: 40/255, blue: 15/255)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -33,7 +32,6 @@ struct AccountView: View {
                     VStack(spacing: 24) {
                         
                         if authManager.isAuthenticated {
-                            // MARK: - Інформація про користувача
                             VStack(spacing: 12) {
                                 Image(systemName: "person.crop.circle.fill")
                                     .font(.system(size: 100))
@@ -61,7 +59,7 @@ struct AccountView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 24)
                             
-
+                            
                             Button(action: {
                                 showSignOutAlert = true
                             }) {
@@ -80,7 +78,6 @@ struct AccountView: View {
                                 .padding(.vertical, 8)
                                 .padding(.horizontal, 24)
                             
-                            // MARK: - Мої бронювання
                             VStack(alignment: .leading, spacing: 16) {
                                 Text("My bookings")
                                     .foregroundStyle(.white)
@@ -93,10 +90,10 @@ struct AccountView: View {
                                         .foregroundStyle(.white.opacity(0.6))
                                         .padding(.horizontal, 24)
                                 } else {
-
+                                    
                                     VStack(spacing: 12) {
                                         ForEach(bookingManager.myBookings) { booking in
-
+                                            
                                             NavigationLink {
                                                 BookingDetailView(booking: booking)
                                                     .environmentObject(bookingManager)
@@ -132,7 +129,7 @@ struct AccountView: View {
                             .padding(.bottom, 40)
                             
                         } else {
-
+                            
                             VStack(spacing: 20) {
                                 Image(systemName: "person.crop.circle.badge.xmark")
                                     .font(.system(size: 80))
@@ -143,7 +140,7 @@ struct AccountView: View {
                                     .font(.title2)
                                     .fontWeight(.medium)
                                 
-
+                                
                                 Button(action: {
                                     withAnimation {
                                         authManager.showAuthView = true
@@ -187,14 +184,14 @@ struct AccountView: View {
                     Button("Cancel", role: .cancel) { }
                     Button("Sign Out", role: .destructive) {
                         Task {
-                                await authManager.signOut()
-                                bookingManager.clearBookedDates()
-                                bookingManager.myBookings = []
-                            }
+                            await authManager.signOut()
+                            bookingManager.clearBookedDates()
+                            bookingManager.myBookings = []
                         }
-                    } message: {
-                        Text("Are you sure you want to sign out of your account?")
                     }
+                } message: {
+                    Text("Are you sure you want to sign out of your account?")
+                }
             }
         }
     }

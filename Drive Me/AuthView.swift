@@ -228,7 +228,6 @@ struct AuthView: View {
         .onTapGesture {
             focusedField = nil
         }
-        // alert for password resetting
         .alert("Reset Password", isPresented: $viewModel.showResetPasswordAlert) {
             TextField("Enter your email", text: $viewModel.resetEmail)
                 .keyboardType(.emailAddress)

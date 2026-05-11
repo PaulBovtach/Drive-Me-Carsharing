@@ -1,22 +1,39 @@
 import SwiftUI
 
+struct OnboardingStep: Identifiable {
+    let id = UUID()
+    let type: StepType
+    let title: String
+    let description: String
+    
+    enum StepType {
+        case systemIcon(name: String)
+        case assetImage(name: String)
+    }
+}
+
 struct OnboardingView: View {
     @Binding var hasSeenOnboarding: Bool
     @State private var selectedPage = 0
     
     let onboardingSteps = [
         OnboardingStep(
-            imageName: "map.fill",
+            type: .assetImage(name: "DriveMeImg"),
+            title: "Welcome to Drive Me",
+            description: "A complete carsharing platform. While clients enjoy seamless booking on the map, admins get a powerful panel for fleet control."
+        ),
+        OnboardingStep(
+            type: .systemIcon(name: "map.fill"),
             title: "Explore the Map",
             description: "Easily locate available cars nearby. Check allowed driving zones and find convenient pickup locations."
         ),
         OnboardingStep(
-            imageName: "car.side.fill",
+            type: .systemIcon(name: "car.side.fill"),
             title: "Book in a Few Taps",
             description: "Browse our autopark, review specs like fuel consumption, and instantly select your rental dates."
         ),
         OnboardingStep(
-            imageName: "checkmark.seal.fill",
+            type: .systemIcon(name: "checkmark.seal.fill"),
             title: "Track Your Bookings",
             description: "Keep everything under control. Monitor your reservation statuses directly from your personal profile."
         )
@@ -35,7 +52,7 @@ struct OnboardingView: View {
             )
             .ignoresSafeArea()
             
-            VStack {
+            VStack(spacing: 0) {
                 TabView(selection: $selectedPage) {
                     ForEach(0..<onboardingSteps.count, id: \.self) { index in
                         OnboardingPage(step: onboardingSteps[index])
@@ -43,11 +60,13 @@ struct OnboardingView: View {
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
-                .indexViewStyle(.page(backgroundDisplayMode: .always))
+                .indexViewStyle(.page(backgroundDisplayMode: .never))
                 
                 Button(action: {
                     if selectedPage < onboardingSteps.count - 1 {
-                        withAnimation { selectedPage += 1 }
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            selectedPage += 1
+                        }
                     } else {
                         hasSeenOnboarding = true
                     }
@@ -67,40 +86,50 @@ struct OnboardingView: View {
     }
 }
 
-struct OnboardingStep {
-    let imageName: String
-    let title: String
-    let description: String
-}
-
 struct OnboardingPage: View {
     let step: OnboardingStep
     
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        VStack(spacing: 0) {
+            Spacer(minLength: 50)
             
-            Image(systemName: step.imageName)
-                .font(.system(size: 100))
-                .symbolRenderingMode(.hierarchical)
-                .foregroundColor(.white)
-                .shadow(color: .green.opacity(0.5), radius: 20)
+            Group {
+                switch step.type {
+                case .systemIcon(let name):
+                    Image(systemName: name)
+                        .font(.system(size: 100))
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundColor(.white)
+                        .shadow(color: .green.opacity(0.5), radius: 20)
+                        .frame(height: 150)
+                    
+                case .assetImage(let name):
+                    Image(name)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 180)
+                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+                        .padding(.horizontal, 40)
+                }
+            }
+            .padding(.bottom, 40)
             
             VStack(spacing: 16) {
                 Text(step.title)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
                 
                 Text(step.description)
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white.opacity(0.8))
                     .padding(.horizontal, 40)
-                    .lineSpacing(4)
+                    .lineSpacing(5)
             }
             
-            Spacer()
-            Spacer()
+            Spacer(minLength: 30)
         }
     }
 }

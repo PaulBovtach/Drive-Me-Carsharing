@@ -60,6 +60,7 @@ class AdminMapViewModel: ObservableObject {
         isLoading = false
     }
     
+    //MARK: Deleting Location from table
     func deleteLocationImmediately(id: UUID) async {
         do {
             try await supabase.from("locations").delete().eq("id", value: id).execute()
@@ -75,6 +76,9 @@ class AdminMapViewModel: ObservableObject {
             print("ADMIN. Delete error: \(error.localizedDescription)")
         }
     }
+    
+    //MARK: Adding new location
+    
     
     // MARK: Logics to go to another apps (Maps, GoogleMaps)
     func openInAppleMaps(location: MapLocation) {

@@ -9,6 +9,9 @@ import SwiftUI
 import MapKit
 
 struct AdminMapSelectionView: View {
+    
+    @ObservedObject var viewModel: AdminMapViewModel
+    
     @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 49.8397, longitude: 24.0297),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -36,6 +39,9 @@ struct AdminMapSelectionView: View {
             VStack {
                 Spacer()
                 Button(action: {
+                    Task{
+                        await viewModel.detectAddress(latitude: currentCenter.latitude, longitude: currentCenter.longitude)
+                    }
                     showDetailsSheet = true
                 }) {
                     HStack {
@@ -57,7 +63,7 @@ struct AdminMapSelectionView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showDetailsSheet) {
             AdminAddLocationSheet(
-                selectedLatitude: currentCenter.latitude,
+                viewModel: viewModel, selectedLatitude: currentCenter.latitude,
                 selectedLongitude: currentCenter.longitude
             )
             
@@ -66,5 +72,5 @@ struct AdminMapSelectionView: View {
 }
 
 #Preview {
-    AdminMapSelectionView()
+    AdminMapSelectionView(viewModel: AdminMapViewModel())
 }

@@ -88,7 +88,7 @@ struct Booking: Identifiable, Codable, Hashable {
 // MARK: - Map Models
 
 // types of locations
-enum LocationType: String, Codable{
+enum LocationType: String, Codable, CaseIterable{
     case dropoff = "Drop-off Only"
     case both = "Pickup & Drop-off"
 }

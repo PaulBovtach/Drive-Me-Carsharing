@@ -97,7 +97,7 @@ class AdminMapViewModel: ObservableObject {
     //MARK: Adding new location
     func addNewLocation(latitude: Double, longitude: Double, type: LocationType) async {
         isSavingLocation = true
-        defer {isSavingLocation = false}
+        defer { isSavingLocation = false }
         
         let newLocation = LocationDTO(name: newLocationName, address: newLocationAddress, latitude: latitude, longitude: longitude, type: type)
         
@@ -109,13 +109,29 @@ class AdminMapViewModel: ObservableObject {
             
             await fetchMapData() //refreshing locations list to see added one
         }catch{
-            print("ADMIN. Failed to add new location!")
+            print("ADMIN. Failed to add new location: \(error.localizedDescription)")
             self.newLocationName = ""
             self.newLocationAddress = ""
         }
     }
     
-    
+    //MARK: Detecting address with (lat, long)
+    func detectAddress(latitude: Double, longitude: Double) async {
+        isDetectingAddress = true
+        defer { isDetectingAddress = false }
+        
+        //creating MapKit request
+        let newLocationCoordinates = CLLocation(latitude: latitude, longitude: longitude)
+        if let request = MKReverseGeocodingRequest(location: newLocationCoordinates) {
+            do{
+                let mapItems = try await request.mapItems
+                newLocationAddress = mapItems.first?.address?.shortAddress ?? "Unknown address"
+                print("ADMIN. Successfully reverse geocoded location: \(newLocationAddress)")
+            }catch {
+                print("ADMIN. Failed to reverse geocode location: \(error.localizedDescription)")
+            }
+        }
+    }
     
     
     

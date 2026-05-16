@@ -37,7 +37,7 @@ struct AdminLocationListView: View {
         .toolbar{
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink {
-                    AdminMapSelectionView()
+                    AdminMapSelectionView(viewModel: viewModel)
                 } label: {
                     Image(systemName: "plus")
                         .foregroundColor(.white)

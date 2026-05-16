@@ -38,7 +38,11 @@ class AdminRequestsViewModel: ObservableObject {
     
     //MARK: Download all bookings
     func fetchRequests(isRefreshing: Bool = false) async {
-        isLoading = true
+        
+        if requests.isEmpty && !isRefreshing {
+            isLoading = true
+        }
+        
         do{
             
             if isRefreshing {
@@ -56,6 +60,7 @@ class AdminRequestsViewModel: ObservableObject {
                     return false
                 }
             }
+            print("ADMIN. Successfully fetched requests!")
             
         }catch {
             print("ADMIN. Failed to fetch requests: \(error.localizedDescription)")

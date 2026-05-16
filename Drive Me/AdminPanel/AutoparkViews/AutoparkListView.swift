@@ -103,8 +103,9 @@ struct AutoparkListView: View {
                 }
                 .preferredColorScheme(.dark)
                 .task { await vm.fetchCars() }
-                .refreshable { await vm.fetchCars(isRefreshing: true) }
+                
             }
+                .refreshable { await vm.fetchCars(isRefreshing: true) }
                 
             }
         }

@@ -44,7 +44,9 @@ class AutoparkListViewModel: ObservableObject {
     
     func fetchCars(isRefreshing: Bool = false) async {
         
-        isLoading = true
+        if cars.isEmpty && !isRefreshing {
+            isLoading = true
+        }
         
         do{
             

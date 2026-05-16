@@ -34,6 +34,23 @@ class AdminMapViewModel: ObservableObject {
             }
         }
     
+    
+    //adding new location
+    @Published var newLocationName: String = ""
+    @Published var newLocationAddress: String = ""
+    
+    @Published var isDetectingAddress: Bool = false
+    @Published var isSavingLocation: Bool = false
+    
+    private struct LocationDTO: Encodable {
+        let id = UUID()
+        let name: String
+        let address: String
+        let latitude: Double
+        let longitude: Double
+        let type: LocationType
+    }
+    
     // MARK: Fetch Data from Supabase
     func fetchMapData() async {
         isLoading = true
@@ -78,6 +95,29 @@ class AdminMapViewModel: ObservableObject {
     }
     
     //MARK: Adding new location
+    func addNewLocation(latitude: Double, longitude: Double, type: LocationType) async {
+        isSavingLocation = true
+        defer {isSavingLocation = false}
+        
+        let newLocation = LocationDTO(name: newLocationName, address: newLocationAddress, latitude: latitude, longitude: longitude, type: type)
+        
+        do{
+            try await supabase.from("locations").insert(newLocation).execute()
+            print("ADMIN. New Location added successfully!")
+            self.newLocationName = ""
+            self.newLocationAddress = ""
+            
+            await fetchMapData() //refreshing locations list to see added one
+        }catch{
+            print("ADMIN. Failed to add new location!")
+            self.newLocationName = ""
+            self.newLocationAddress = ""
+        }
+    }
+    
+    
+    
+    
     
     
     // MARK: Logics to go to another apps (Maps, GoogleMaps)

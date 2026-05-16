@@ -26,12 +26,11 @@ struct AdminMapSelectionView: View {
             
             //static aim
             VStack {
-                Image(systemName: "scope")
+                Image(systemName: "plus")
                     .font(.system(size: 30, weight: .light))
                     .foregroundColor(.white)
-                    .padding(10)
+                    .padding(8)
                     .background(Color.black.opacity(0.3).clipShape(Circle()))
-                    .offset(y: -15)
             }
             
             VStack {

@@ -57,9 +57,7 @@ class AutoparkListViewModel: ObservableObject {
             let fetchedCars: [Car] = try await supabase
                 .from("cars").select().order("brand", ascending: true).execute().value
             
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                self.cars = fetchedCars
-            }
+            self.cars = fetchedCars
             print("ADMIN. Successfully fetched cars to autopark!")
             
         }catch {

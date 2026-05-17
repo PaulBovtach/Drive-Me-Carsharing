@@ -1,3 +1,4 @@
+
 import SwiftUI
 import MapKit
 
@@ -5,15 +6,27 @@ struct AdminMapView: View {
     @ObservedObject var viewModel: AdminMapViewModel
     @StateObject private var locationManager = LocationManager()
     
-    let initialCamera = MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000)
+    let fallbackCamera = MapCamera(
+        centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+        distance: 50000
+    )
     
-    @State private var cameraPosition: MapCameraPosition
-    @State private var currentCamera: MapCamera
+    @State private var cameraPosition: MapCameraPosition = .userLocation(
+        fallback: .camera(
+            MapCamera(
+                centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+                distance: 50000
+            )
+        )
+    )
+    
+    @State private var currentCamera: MapCamera = MapCamera(
+        centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+        distance: 50000
+    )
     
     init(viewModel: AdminMapViewModel) {
         self.viewModel = viewModel
-        _cameraPosition = State(initialValue: .camera(MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000)))
-        _currentCamera = State(initialValue: MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000))
     }
     
     var body: some View {
@@ -43,7 +56,6 @@ struct AdminMapView: View {
                 currentCamera = context.camera
             }
             
-            // MARK: Map Legend
             VStack {
                 Spacer()
                 HStack {
@@ -55,10 +67,9 @@ struct AdminMapView: View {
                             
                             Spacer(minLength: 20)
                             
-                            // Re-centre
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 1.0)) {
-                                    cameraPosition = .camera(initialCamera)
+                                    cameraPosition = .userLocation(fallback: .camera(fallbackCamera))
                                     viewModel.selectedLocation = nil
                                 }
                             }) {

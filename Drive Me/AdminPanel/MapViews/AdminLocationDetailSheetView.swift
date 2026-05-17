@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct AdminLocationDetailSheetView: View {
+    
     let location: MapLocation
     @ObservedObject var viewModel: AdminMapViewModel
     @Environment(\.dismiss) var dismiss
+    
+    @State private var showDeleteAlert = false
     
     var body: some View {
         ZStack {
@@ -18,10 +21,25 @@ struct AdminLocationDetailSheetView: View {
             
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(location.name)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                    
+                    HStack{
+                        Text(location.name)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                        
+                        Button{
+                            showDeleteAlert = true
+                        }label: {
+                            Image(systemName: "trash")
+                                .foregroundStyle(.red)
+                                .padding(10)
+                                .background(Color.white.opacity(0.1))
+                                .clipShape(Circle())
+                        }
+                    }
                     
                     Text(location.type.rawValue)
                         .font(.subheadline)
@@ -51,6 +69,8 @@ struct AdminLocationDetailSheetView: View {
                             .clipShape(Circle())
                     }
                 }
+                
+                
                 
                 Divider().background(Color.gray)
                 
@@ -84,6 +104,18 @@ struct AdminLocationDetailSheetView: View {
             }
             .padding(24)
             .padding(.top, 16)
+            .alert("Confirm Deletion", isPresented: $showDeleteAlert) {
+                Button("Cancel", role: .cancel) {  }
+                Button("Delete", role: .destructive) {
+                    Task {
+                        await viewModel.deleteLocationImmediately(id: location.id)
+                        dismiss()
+                    }
+                }
+            } message: {
+                Text("Are you sure you want to delete '\(location.name)'?")
+            }
+            
         }
     }
 }

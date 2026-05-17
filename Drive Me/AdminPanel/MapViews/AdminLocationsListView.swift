@@ -56,7 +56,7 @@ struct AdminLocationListView: View {
                 }
             }
         } message: { location in
-            Text("Are you sure you want to delete '\(location.name)'? This action cannot be undone.")
+            Text("Are you sure you want to delete '\(location.name)'?")
         }
         
     }

@@ -12,20 +12,25 @@ struct AdminMapSelectionView: View {
     
     @ObservedObject var viewModel: AdminMapViewModel
     
-    @State private var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 49.8397, longitude: 24.0297),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    ))
+    @State private var cameraPosition: MapCameraPosition = .userLocation(
+        fallback: .region(MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 49.8397, longitude: 24.0297),
+            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+        ))
+    )
     
     @State private var currentCenter = CLLocationCoordinate2D(latitude: 49.8397, longitude: 24.0297)
     @State private var showDetailsSheet = false
     
     var body: some View {
         ZStack {
-            Map(position: $cameraPosition)
-                .onMapCameraChange(frequency: .continuous) { context in
-                    currentCenter = context.region.center
-                }
+            Map(position: $cameraPosition){
+                UserAnnotation()
+            }
+            .onMapCameraChange(frequency: .continuous) { context in
+                currentCenter = context.region.center
+            }
+            
             
             //static aim
             VStack {

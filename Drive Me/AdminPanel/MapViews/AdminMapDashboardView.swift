@@ -9,7 +9,6 @@ struct AdminMapDashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                
                 LinearGradient(
                     gradient: Gradient(colors: [
                         Color(red: 50/255, green: 80/255, blue: 40/255),
@@ -20,17 +19,14 @@ struct AdminMapDashboardView: View {
                     endPoint: .bottom
                 )
                 .ignoresSafeArea()
-
                 
-                // Перемикання між картою та списком
                 if viewModel.selectedTab == .map {
                     AdminMapView(viewModel: viewModel)
-                } else {
-                    AdminLocationListView(viewModel: viewModel)
+                        .transition(.opacity)
                 }
-            }
-            .safeAreaInset(edge: .top) {
-                VStack {
+                
+                VStack(spacing: 0) {
+                    
                     Picker("View Mode", selection: $viewModel.selectedTab) {
                         ForEach(AdminMapTab.allCases, id: \.self) { tab in
                             Text(tab.rawValue).tag(tab)
@@ -38,13 +34,26 @@ struct AdminMapDashboardView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding()
+                    .environment(\.colorScheme, .dark)
+                    .background {
+                        if viewModel.selectedTab == .map {
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .ignoresSafeArea(edges: .top)
+                        }
+                    }
+                    
+                    if viewModel.selectedTab == .list {
+                        AdminLocationListView(viewModel: viewModel)
+                            .transition(.opacity)
+                    } else {
+                        Spacer()
+                    }
                 }
-                .background(.ultraThinMaterial)
-                .environment(\.colorScheme, .dark)
             }
+            .animation(.easeInOut(duration: 0.2), value: viewModel.selectedTab)
             .navigationTitle("Manage Locations")
             .navigationBarTitleDisplayMode(.inline)
-            
         }
         .task {
             await viewModel.fetchMapData()

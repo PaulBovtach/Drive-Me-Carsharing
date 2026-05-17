@@ -39,7 +39,6 @@ struct AdminRequestsView: View {
                     .pickerStyle(.segmented)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 16)
-                    .background(.ultraThinMaterial)
                     .environment(\.colorScheme, .dark)
                     
                     // MARK: - Content

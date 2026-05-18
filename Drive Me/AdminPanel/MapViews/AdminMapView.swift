@@ -119,6 +119,17 @@ struct AdminMapView: View {
                 }
             }
         }
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    AdminMapSelectionView(viewModel: viewModel)
+                       
+                } label: {
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                }
+            }
+        }
     }
     
     func colorFor(type: LocationType) -> Color {

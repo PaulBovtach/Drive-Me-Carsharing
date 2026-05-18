@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AdminLocationListView: View {
     @ObservedObject var viewModel: AdminMapViewModel
+    @Environment(\.dismiss) var dismiss
     
     @State private var locationToDelete: MapLocation?
     @State private var showDeleteAlert = false

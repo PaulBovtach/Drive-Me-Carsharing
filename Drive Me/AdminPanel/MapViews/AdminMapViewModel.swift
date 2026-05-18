@@ -41,6 +41,7 @@ class AdminMapViewModel: ObservableObject {
     
     @Published var isDetectingAddress: Bool = false
     @Published var isSavingLocation: Bool = false
+    @Published var isLocationSaved: Bool = false
     
     private struct LocationDTO: Encodable {
         let id = UUID()
@@ -106,6 +107,7 @@ class AdminMapViewModel: ObservableObject {
             print("ADMIN. New Location added successfully!")
             self.newLocationName = ""
             self.newLocationAddress = ""
+            self.isLocationSaved = true
             
             await fetchMapData() //refreshing locations list to see added one
         }catch{

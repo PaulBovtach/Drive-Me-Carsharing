@@ -1,7 +1,7 @@
 
 # Drive Me | Carsharing 🚗
 
- A modern, native iOS carsharing platform with a administration platform, built entirely with SwiftUI and Supabase.
+ A modern, native iOS carsharing platform with an administration panel, built entirely with SwiftUI and Supabase.
 
 
 ![iOS](https://img.shields.io/badge/iOS-26.0+-blue)

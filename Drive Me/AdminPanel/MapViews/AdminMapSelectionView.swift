@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 
 struct AdminMapSelectionView: View {
-    
+    @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: AdminMapViewModel
     
     @State private var cameraPosition: MapCameraPosition = .userLocation(
@@ -71,6 +71,12 @@ struct AdminMapSelectionView: View {
                 viewModel: viewModel, selectedLatitude: currentCenter.latitude,
                 selectedLongitude: currentCenter.longitude
             )
+            .onDisappear {
+                if viewModel.isLocationSaved {
+                    viewModel.isLocationSaved = false
+                    dismiss()
+                }
+            }
             
         }
     }

@@ -17,6 +17,9 @@ class AuthManager: ObservableObject {
     @Published var currentUserProfile: UserProfile? //our own User struct
     @Published var showAuthView: Bool = false
     
+    @Published var authMessage = ""
+    @Published var showAuthAlert = false
+    
     var isAuthenticated: Bool { return currentUser != nil }
     var isAdmin: Bool { return currentUserProfile?.role == "admin"}
     
@@ -64,6 +67,8 @@ class AuthManager: ObservableObject {
             
             
         } catch {
+            authMessage = error.localizedDescription
+            showAuthAlert = true
             print("Failed to register: \(error.localizedDescription)")
         }
         
@@ -76,6 +81,8 @@ class AuthManager: ObservableObject {
             self.showAuthView = false
             print("Successfully logined!")
         }catch {
+            authMessage = error.localizedDescription
+            showAuthAlert = true
             print("Failed to log in: \(error.localizedDescription)")
         }
     }

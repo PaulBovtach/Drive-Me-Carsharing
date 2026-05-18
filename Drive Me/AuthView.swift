@@ -16,6 +16,7 @@ struct AuthView: View {
     @StateObject private var viewModel = AuthViewModel()
     @FocusState private var focusedField: Field?
     
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -242,6 +243,11 @@ struct AuthView: View {
             .disabled(!viewModel.isResetEmailValid)
         } message: {
             Text("Enter your email address and we'll send you a link to reset your password.")
+        }
+        .alert(authManager.authMessage, isPresented: $authManager.showAuthAlert){
+            Button("OK"){
+                authManager.authMessage = ""
+            }
         }
     }
 }

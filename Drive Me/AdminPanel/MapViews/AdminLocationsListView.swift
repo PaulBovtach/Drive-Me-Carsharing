@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AdminLocationListView: View {
     @ObservedObject var viewModel: AdminMapViewModel
+    @Environment(\.dismiss) var dismiss
     
     @State private var locationToDelete: MapLocation?
     @State private var showDeleteAlert = false
@@ -34,6 +35,16 @@ struct AdminLocationListView: View {
             }
         }
         .scrollContentBackground(.hidden)
+        .toolbar{
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    AdminMapSelectionView(viewModel: viewModel)
+                } label: {
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                }
+            }
+        }
         
         .alert("Confirm Deletion", isPresented: $showDeleteAlert, presenting: locationToDelete) { location in
             Button("Cancel", role: .cancel) {
@@ -46,8 +57,9 @@ struct AdminLocationListView: View {
                 }
             }
         } message: { location in
-            Text("Are you sure you want to delete '\(location.name)'? This action cannot be undone.")
+            Text("Are you sure you want to delete '\(location.name)'?")
         }
+        
     }
 }
 
@@ -69,8 +81,13 @@ struct AdminLocationRowView: View {
                     .font(.headline)
                     .foregroundColor(.white)
                 
+                Text(location.address)
+                    .font(.subheadline)
+                    .foregroundColor(Color.white.opacity(0.8))
+                
                 Text(location.type.rawValue)
                     .font(.caption)
+                    .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
                     .background(Color.white.opacity(0.15))
@@ -85,3 +102,4 @@ struct AdminLocationRowView: View {
         .padding(.vertical, 4)
     }
 }
+

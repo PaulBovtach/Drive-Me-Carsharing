@@ -34,6 +34,24 @@ class AdminMapViewModel: ObservableObject {
             }
         }
     
+    
+    //adding new location
+    @Published var newLocationName: String = ""
+    @Published var newLocationAddress: String = ""
+    
+    @Published var isDetectingAddress: Bool = false
+    @Published var isSavingLocation: Bool = false
+    @Published var isLocationSaved: Bool = false
+    
+    private struct LocationDTO: Encodable {
+        let id = UUID()
+        let name: String
+        let address: String
+        let latitude: Double
+        let longitude: Double
+        let type: LocationType
+    }
+    
     // MARK: Fetch Data from Supabase
     func fetchMapData() async {
         isLoading = true
@@ -60,6 +78,7 @@ class AdminMapViewModel: ObservableObject {
         isLoading = false
     }
     
+    //MARK: Deleting Location from table
     func deleteLocationImmediately(id: UUID) async {
         do {
             try await supabase.from("locations").delete().eq("id", value: id).execute()
@@ -75,6 +94,49 @@ class AdminMapViewModel: ObservableObject {
             print("ADMIN. Delete error: \(error.localizedDescription)")
         }
     }
+    
+    //MARK: Adding new location
+    func addNewLocation(latitude: Double, longitude: Double, type: LocationType) async {
+        isSavingLocation = true
+        defer { isSavingLocation = false }
+        
+        let newLocation = LocationDTO(name: newLocationName, address: newLocationAddress, latitude: latitude, longitude: longitude, type: type)
+        
+        do{
+            try await supabase.from("locations").insert(newLocation).execute()
+            print("ADMIN. New Location added successfully!")
+            self.newLocationName = ""
+            self.newLocationAddress = ""
+            self.isLocationSaved = true
+            
+            await fetchMapData() //refreshing locations list to see added one
+        }catch{
+            print("ADMIN. Failed to add new location: \(error.localizedDescription)")
+            self.newLocationName = ""
+            self.newLocationAddress = ""
+        }
+    }
+    
+    //MARK: Detecting address with (lat, long)
+    func detectAddress(latitude: Double, longitude: Double) async {
+        isDetectingAddress = true
+        defer { isDetectingAddress = false }
+        
+        //creating MapKit request
+        let newLocationCoordinates = CLLocation(latitude: latitude, longitude: longitude)
+        if let request = MKReverseGeocodingRequest(location: newLocationCoordinates) {
+            do{
+                let mapItems = try await request.mapItems
+                newLocationAddress = mapItems.first?.address?.shortAddress ?? "Unknown address"
+                print("ADMIN. Successfully reverse geocoded location: \(newLocationAddress)")
+            }catch {
+                print("ADMIN. Failed to reverse geocode location: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    
+    
     
     // MARK: Logics to go to another apps (Maps, GoogleMaps)
     func openInAppleMaps(location: MapLocation) {

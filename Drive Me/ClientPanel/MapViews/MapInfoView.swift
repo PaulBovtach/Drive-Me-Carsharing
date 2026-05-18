@@ -10,16 +10,25 @@ struct MapInfoView: View {
     @StateObject private var viewModel = MapViewModel()
     @StateObject private var locationManager = LocationManager()
     
-    let initialCamera = MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: 49.264779, longitude: 23.870117), distance: 250000)
-        
-    @State private var cameraPosition: MapCameraPosition
-        
-    @State private var currentCamera: MapCamera
-        
-    init() {
-        _cameraPosition = State(initialValue: .camera(initialCamera))
-        _currentCamera = State(initialValue: initialCamera)
-    }
+    let fallbackCamera = MapCamera(
+        centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+        distance: 50000
+    )
+    
+    @State private var cameraPosition: MapCameraPosition = .userLocation(
+        fallback: .camera(
+            MapCamera(
+                centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+                distance: 50000
+            )
+        )
+    )
+    
+    @State private var currentCamera: MapCamera = MapCamera(
+        centerCoordinate: CLLocationCoordinate2D(latitude: 49.2558, longitude: 23.8500),
+        distance: 50000
+    )
+    
     
     var body: some View {
         ZStack {
@@ -36,12 +45,9 @@ struct MapInfoView: View {
                 
                 // Draw dots
                 ForEach(viewModel.locations) { location in
-                    
                     Marker(location.name, systemImage: iconFor(type: location.type), coordinate: location.coordinate)
                         .tint(colorFor(type: location.type))
                         .tag(location)
-                    
-                    
                 }
             }
             .mapStyle(.standard(elevation: .realistic))
@@ -55,7 +61,6 @@ struct MapInfoView: View {
                 currentCamera = context.camera
             }
             
-            // MARK: Map Legend
             VStack {
                 Spacer()
                 HStack {
@@ -67,10 +72,9 @@ struct MapInfoView: View {
                             
                             Spacer(minLength: 20)
                             
-                            // Re-centre
                             Button(action: {
                                 withAnimation(.easeInOut(duration: 1.0)) {
-                                    cameraPosition = .camera(initialCamera)
+                                    cameraPosition = .userLocation(fallback: .camera(fallbackCamera))
                                     viewModel.selectedLocation = nil
                                 }
                             }) {
@@ -130,6 +134,7 @@ struct MapInfoView: View {
         }
     }
     
+    // MARK: - Helpers
     func colorFor(type: LocationType) -> Color {
         switch type {
         case .both: return .green

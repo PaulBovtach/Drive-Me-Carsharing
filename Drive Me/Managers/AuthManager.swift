@@ -123,7 +123,6 @@ class AuthManager: ObservableObject {
     
     func resetPassword(email: String) async {
         do {
-            // Відправляє лист на вказаний email
             try await supabase.auth.resetPasswordForEmail(email)
             print("Password reset email sent to: \(email)")
         } catch {

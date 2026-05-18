@@ -17,7 +17,6 @@ struct AdminCarEditView: View {
     
     var body: some View {
         ZStack {
-
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color(red: 50/255, green: 80/255, blue: 40/255),
@@ -27,6 +26,9 @@ struct AdminCarEditView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+            .onTapGesture {
+                hideKeyboard()
+            }
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -39,7 +41,7 @@ struct AdminCarEditView: View {
                             }label: {
                                 Image(systemName: "pencil.circle")
                                     .font(.system(size: 32, weight: .medium))
-                                    
+                                
                             }
                             .background(Color.green)
                             .buttonStyle(.glass)
@@ -48,9 +50,6 @@ struct AdminCarEditView: View {
                         }
                         .padding(.trailing, 15)
                     }
-                    
-                    
-                        
                     
                     // form
                     VStack(alignment: .leading, spacing: 10) {
@@ -129,7 +128,6 @@ struct AdminCarEditView: View {
                             }
                         }
                         
-                        
                         //consumption and fuel type
                         HStack(alignment: .center, spacing: 10){
                             //consumption
@@ -180,7 +178,6 @@ struct AdminCarEditView: View {
                             .tint(Color.black)
                             
                         }
-                          
                         
                         Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
                         
@@ -190,13 +187,13 @@ struct AdminCarEditView: View {
                             
                             BetterEditor(text: $vm.description, placeholder: "Type car description", maxHeight: 100)
                                 .betterEditorScrollIndicators(.visible)
-                                
+                            
                                 .foregroundStyle(.black)
                                 .frame(minHeight: 100)
                                 .padding()
                                 .background(Color.white.opacity(0.8))
                                 .clipShape(.rect(cornerRadius: 15))
-                                
+                            
                         }
                         
                         Divider().background(Color.white.opacity(0.2)).padding(.vertical, 4)
@@ -216,6 +213,10 @@ struct AdminCarEditView: View {
                 }
                 .padding(.bottom, 30)
             }
+            .scrollDismissesKeyboard(.interactively)
+            .onTapGesture {
+                hideKeyboard()
+            }
             
             // indicator while saving
             if vm.isSaving {
@@ -225,7 +226,7 @@ struct AdminCarEditView: View {
         }
         .sheet(isPresented: $showPhotoEditor){
             AdminCarPhotoEditorView(vm: vm)
-                
+            
         }
         .navigationTitle("Edit Vehicle")
         .navigationBarTitleDisplayMode(.inline)
@@ -275,8 +276,10 @@ struct AdminCarEditView: View {
         }
     }
     
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
-
 
 #Preview {
     AdminCarEditView(car: Car(id: UUID(), brand: "BWM", model: "M5", year: 2012, consumption: 10.4, fuelType: "Diesel", transmissionType: "Automatic", isAvailable: true, imageUrls: [], pricePerDay: 100, description: "BMW stands for Bayerische Motoren Werke, which translates to Bavarian Motor Works in English. It is a renowned German manufacturer of luxury automobiles, motorcycles, and engines headquartered in Munich, known for its focus on performance, innovation, and premium engineering. "))
